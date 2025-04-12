@@ -9,12 +9,11 @@ from typing import List
 router = APIRouter()
 
 def get_db():
-    yield SessionLocal()
-    #db = SessionLocal()
-    #try:
-
-    #finally:
-    #    db.close()
+    db = SessionLocal()
+    try:
+        yield SessionLocal()
+    finally:
+        db.close()
 
 @router.post("/pulse")
 def add_pulse(data: List[schemas.PulseIn], db: Session = Depends(get_db), user: models.User = Depends(auth.get_current_user)):
