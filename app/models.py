@@ -60,3 +60,5 @@ class EscalResults(Base):
 
     # Для связи с пользователем
     user = relationship("User", back_populates="escal_results")
+
+User.escal_results = relationship("EscalResults", back_populates="user", uselist=False)
