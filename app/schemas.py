@@ -29,3 +29,20 @@ class EscalTestIn(BaseModel):
 
 class AvailableTest(BaseModel):
     type: str
+
+class EscalResultsCreate(BaseModel):
+    v1_result: int
+    v1_v2_result: int
+    v2_result: int
+    v2_v3_result: int
+    v3_result: int
+    v3_v4_result: int
+    v4_result: int
+    v4_v1_result: int
+
+class EscalResultsResponse(EscalResultsCreate):
+    id: int
+    user_id: int
+
+    class Config:
+        orm_mode = True

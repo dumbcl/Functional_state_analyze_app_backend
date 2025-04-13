@@ -43,3 +43,20 @@ class Test(Base):
     type = Column(String, nullable=False)  # shtange, escal, etc.
     is_active = Column(Boolean, default=True)
     user_id = Column(Integer, ForeignKey("users.id"))
+
+class EscalResults(Base):
+    __tablename__ = "escal_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    v1_result = Column(Integer, nullable=True)
+    v1_v2_result = Column(Integer, nullable=True)
+    v2_result = Column(Integer, nullable=True)
+    v2_v3_result = Column(Integer, nullable=True)
+    v3_result = Column(Integer, nullable=True)
+    v3_v4_result = Column(Integer, nullable=True)
+    v4_result = Column(Integer, nullable=True)
+    v4_v1_result = Column(Integer, nullable=True)
+
+    # Для связи с пользователем
+    user = relationship("User", back_populates="escal_results")
