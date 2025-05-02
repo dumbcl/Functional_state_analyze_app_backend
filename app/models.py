@@ -227,6 +227,22 @@ class EscalDailyResults(Base):
     user = relationship("User", back_populates="escal_daily_results")
 
 
+class TextAuditionResults(Base):
+    __tablename__ = "text_audition_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    read_text_path = Column(String, nullable=False)
+    repeat_text_path = Column(String, nullable=False)
+    test_date = Column(Date, default=datetime.utcnow().date)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Для связи с пользователем
+    user = relationship("User", back_populates="audio_files")
+
+
+User.audio_files = relationship("AudioFile", back_populates="user")
+
 User.escal_daily_results = relationship("EscalDailyResults", back_populates="user", uselist=False)
 User.reactions_test_results = relationship("ReactionsTestResult", back_populates="user", uselist=False)
 User.escal_results = relationship("EscalResults", back_populates="user", uselist=False)

@@ -157,3 +157,19 @@ class EscalDailyResultsResponse(EscalDailyResultsCreate):
 
     class Config:
         orm_mode = True
+
+class TextAuditionResponse(BaseModel):
+    read_text: str
+    repeat_text: str
+
+    class Config:
+        orm_mode = True
+
+class TextAuditionResultResponse(BaseModel):
+    read_text_path: str
+    repeat_text_path: str
+    test_date: str
+    created_at: str
+
+    class Config:
+        orm_mode = True
