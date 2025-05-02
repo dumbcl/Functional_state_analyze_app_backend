@@ -177,19 +177,20 @@ class ReactionsTestResult(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    visual = Column(String, nullable=True)  # Будем хранить список пар как строку (JSON)
-    audio = Column(String, nullable=True)  # То же самое для audio
+    visual = Column(String, nullable=True)  # Список пар времени реакции (JSON)
+    audio = Column(String, nullable=True)  # Список пар времени реакции (JSON)
     test_date = Column(Date, default=datetime.utcnow().date)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    visual_errors = Column(Integer, default=0)  # Количество ошибок для visual
-    audio_errors = Column(Integer, default=0)  # Количество ошибок для audio
+    visual_errors = Column(Integer, default=0)
+    audio_errors = Column(Integer, default=0)
 
+    # Добавляем связь с User
     user = relationship("User", back_populates="reactions_test_results")
 
     @classmethod
     def calculate_errors(cls, reactions: str):
-        pairs = reactions  # Преобразуем строки JSON обратно в список пар
+        pairs = reactions  # Преобразуем строку JSON обратно в список пар
         errors = 0
         for pair in pairs:
             if abs(pair[0] - pair[1]) > 500:
@@ -227,5 +228,5 @@ class EscalDailyResults(Base):
 
 
 User.escal_daily_results = relationship("EscalDailyResults", back_populates="user", uselist=False)
-
+User.reactions_test_results = relationship("ReactionsTestResult", back_populates="user", uselist=False)
 User.escal_results = relationship("EscalResults", back_populates="user", uselist=False)
