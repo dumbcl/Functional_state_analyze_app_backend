@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Boolean, Text, UniqueConstraint
+from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime, Date, Boolean, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -19,6 +19,7 @@ class PulseMeasurement(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     __table_args__ = (UniqueConstraint('user_id', 'measured_at', name='_user_measured_uc'),)
 
+
 class ShtangeTestResult(Base):
     __tablename__ = "shtange_test_results"
     id = Column(Integer, primary_key=True, index=True)
@@ -28,6 +29,87 @@ class ShtangeTestResult(Base):
     heart_rate_after = Column(Integer, nullable=False)
     test_date = Column(Date, default=datetime.utcnow().date)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Новые поля
+    result_estimation = Column(String, nullable=True)  # BAD, MEDIUM, GOOD
+    reaction_indicator = Column(Integer, nullable=True)  # heart_rate_after / heart_rate_before
+
+    @classmethod
+    def calculate_reaction_indicator(cls, heart_rate_after, heart_rate_before):
+        if heart_rate_before == 0:  # Предотвращаем деление на 0
+            return None
+        return heart_rate_after / heart_rate_before
+
+    @classmethod
+    def calculate_result_estimation(cls, breath_hold_seconds):
+        if breath_hold_seconds < 39:
+            return "BAD"
+        elif breath_hold_seconds > 50:
+            return "GOOD"
+        return "MEDIUM"
+
+class RufieTestResult(Base):
+    __tablename__ = "rufie_test_results"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    measurement_first = Column(Integer, nullable=False)
+    measurement_second = Column(Integer, nullable=False)
+    measurement_third = Column(Integer, nullable=False)
+    test_date = Column(Date, default=datetime.utcnow().date)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Новые поля
+    rufie_index = Column(Integer, nullable=True)
+    result_estimation = Column(String, nullable=True)
+
+    @classmethod
+    def calculate_rufie_index(cls, measurement_first, measurement_second, measurement_third):
+        return 4 * (measurement_first + measurement_second + measurement_third) - 200 / 10
+
+    @classmethod
+    def calculate_result_estimation(cls, rufie_index):
+        if rufie_index > 15:
+            return "LOW"
+        elif rufie_index <= 0:
+            return "HIGH"
+        elif 0.5 <= rufie_index <= 5:
+            return "MEDIUM_HIGH"
+        elif 6 <= rufie_index <= 10:
+            return "MEDIUM"
+        elif 11 <= rufie_index <= 15:
+            return "MEDIUM_LOW"
+        return "UNKNOWN"
+
+class StrupTestResult(Base):
+    __tablename__ = "strup_test_results"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    result = Column(Integer, nullable=False)
+    test_date = Column(Date, default=datetime.utcnow().date)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Новые поля
+    result_estimation = Column(String, nullable=True)
+
+    @classmethod
+    def calculate_result_estimation(cls, result):
+        if result < 20:
+            return "BAD"
+        elif result > 40:
+            return "GOOD"
+        return "MEDIUM"
+
+class PersonalReportTestResult(Base):
+    __tablename__ = "personal_report_test_results"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    performance_measure = Column(Integer, nullable=False)
+    test_date = Column(Date, default=datetime.utcnow().date)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Новые поля
+    days_comparison = Column(String, nullable=False)  # LOT_WORSE, WORSE, SAME, BETTER, LOT_BETTER
+
 
 class EscalTestResult(Base):
     __tablename__ = "escal_test_results"
@@ -60,5 +142,90 @@ class EscalResults(Base):
 
     # Для связи с пользователем
     user = relationship("User", back_populates="escal_results")
+
+class GenchTestResult(Base):
+    __tablename__ = "gench_test_results"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    heart_rate_before = Column(Integer, nullable=False)
+    breath_hold_seconds = Column(Integer, nullable=False)
+    heart_rate_after = Column(Integer, nullable=False)
+    test_date = Column(Date, default=datetime.utcnow().date)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Новые поля
+    result_estimation = Column(String, nullable=True)  # BAD, MEDIUM, GOOD
+    reaction_indicator = Column(Integer, nullable=True)
+
+    @classmethod
+    def calculate_reaction_indicator(cls, heart_rate_after, heart_rate_before):
+        if heart_rate_before == 0:  # Предотвращаем деление на 0
+            return None
+        return heart_rate_after / heart_rate_before
+
+    @classmethod
+    def calculate_result_estimation(cls, breath_hold_seconds):
+        if breath_hold_seconds < 34:
+            return "BAD"
+        elif breath_hold_seconds > 40:
+            return "GOOD"
+        return "MEDIUM"
+
+
+class ReactionsTestResult(Base):
+    __tablename__ = "reactions_test_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    visual = Column(String, nullable=True)  # Будем хранить список пар как строку (JSON)
+    audio = Column(String, nullable=True)  # То же самое для audio
+    test_date = Column(Date, default=datetime.utcnow().date)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    visual_errors = Column(Integer, default=0)  # Количество ошибок для visual
+    audio_errors = Column(Integer, default=0)  # Количество ошибок для audio
+
+    user = relationship("User", back_populates="reactions_test_results")
+
+    @classmethod
+    def calculate_errors(cls, reactions: str):
+        pairs = reactions  # Преобразуем строки JSON обратно в список пар
+        errors = 0
+        for pair in pairs:
+            if abs(pair[0] - pair[1]) > 500:
+                errors += 1
+        return errors
+
+
+class EscalDailyResults(Base):
+    __tablename__ = "escal_daily_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    performance = Column(Integer, nullable=False)
+    fatigue = Column(Integer, nullable=False)
+    anxiety = Column(Integer, nullable=False)
+    conflict = Column(Integer, nullable=False)
+    autonomy = Column(Integer, nullable=False)
+    heteron = Column(Integer, nullable=False)
+    eccentricity = Column(Integer, nullable=False)
+    concetration = Column(Integer, nullable=False)
+    vegeative = Column(Integer, nullable=False)
+    wellbeingX = Column(Integer, nullable=False)
+    wellbeingZ = Column(Float, nullable=False)
+    activityX = Column(Integer, nullable=False)
+    activityZ = Column(Float, nullable=False)
+    moodX = Column(Integer, nullable=False)
+    moodZ = Column(Float, nullable=False)
+    ipX = Column(Integer, nullable=False)
+    ipZ = Column(Float, nullable=False)
+    test_date = Column(Date, default=datetime.utcnow().date)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Для связи с пользователем
+    user = relationship("User", back_populates="escal_daily_results")
+
+
+User.escal_daily_results = relationship("EscalDailyResults", back_populates="user", uselist=False)
 
 User.escal_results = relationship("EscalResults", back_populates="user", uselist=False)

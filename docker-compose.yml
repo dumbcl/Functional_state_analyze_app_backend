@@ -11,7 +11,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - diplomtry_postgres_data:/var/lib/postgresql/data
 
   web:
     build: .
@@ -27,4 +27,4 @@ services:
       - .env
 
 volumes:
-  postgres_data:
+  diplomtry_postgres_data:

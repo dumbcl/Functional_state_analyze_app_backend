@@ -63,18 +63,85 @@ def add_escal_test(data: schemas.EscalTestIn, db: Session = Depends(get_db), use
     db.commit()
     return {"status": "added"}
 
-@router.get("/available-tests", response_model=List[schemas.AvailableTest])
+# app/routes/health.py
+@router.get("/available-tests", response_model=schemas.AvailableTestsResponse)
 def get_available_tests(db: Session = Depends(get_db), user: models.User = Depends(auth.get_current_user)):
     today = date.today()
-    active_tests = db.query(models.Test).filter_by(user_id=user.id, is_active=True).all()
-    available = []
-    for test in active_tests:
-        if test.type == "shtange":
-            exists = db.query(models.ShtangeTestResult).filter_by(user_id=user.id, test_date=today).first()
-        elif test.type == "escal":
-            exists = db.query(models.EscalTestResult).filter_by(user_id=user.id, test_date=today).first()
+
+    # Все возможные типы тестов
+    test_types = ["shtange", "escal", "escal_daily", "gench", "reactions", "rufie", "strup"]
+    available_tests = []
+    completed_tests = []
+
+    # Флаг для проверки, был ли пройден тест "escal"
+    escal_test_completed = False
+
+    # Проверяем, был ли пройден тест "escal"
+    escal_test = db.query(models.EscalTestResult).filter_by(user_id=user.id, test_date=today).first()
+    if escal_test:
+        escal_test_completed = True
+
+    # Если "escal" не пройден — возвращаем только "escal" в доступных тестах
+    if not escal_test_completed:
+        available_tests.append(schemas.AvailableTest(type="escal"))
+        return schemas.AvailableTestsResponse(
+            available_tests=available_tests,
+            completed_tests=[]
+        )
+
+    # Если "escal" пройден, всегда добавляем "escal_daily" в доступные тесты
+    available_tests.append(schemas.AvailableTest(type="escal_daily"))
+
+    # Для остальных тестов проверяем, были ли они пройдены сегодня
+    for test_type in test_types:
+        if test_type == "escal":
+            continue
+        elif test_type == "escal_daily":
+            continue
+
+        exists = False  # Флаг для проверки, был ли тест пройден сегодня
+        last_test_date = None  # Дата последнего прохождения
+
+        if test_type == "shtange":
+            test = db.query(models.ShtangeTestResult).filter_by(user_id=user.id).order_by(models.ShtangeTestResult.test_date.desc()).first()
+            if test:
+                exists = True
+                last_test_date = test.test_date
+        elif test_type == "escal":
+            continue
+        elif test_type == "escal_daily":
+            continue
+        elif test_type == "gench":
+            test = db.query(models.GenchTestResult).filter_by(user_id=user.id).order_by(models.GenchTestResult.test_date.desc()).first()
+            if test:
+                exists = True
+                last_test_date = test.test_date
+        elif test_type == "reactions":
+            test = db.query(models.ReactionsTestResult).filter_by(user_id=user.id).order_by(models.ReactionsTestResult.test_date.desc()).first()
+            if test:
+                exists = True
+                last_test_date = test.test_date
+        elif test_type == "rufie":
+            test = db.query(models.RufieTestResult).filter_by(user_id=user.id).order_by(models.RufieTestResult.test_date.desc()).first()
+            if test:
+                exists = True
+                last_test_date = test.test_date
+        elif test_type == "strup":
+            test = db.query(models.StrupTestResult).filter_by(user_id=user.id).order_by(models.StrupTestResult.test_date.desc()).first()
+            if test:
+                exists = True
+                last_test_date = test.test_date
+
+        # Добавляем тест в нужный список
+        test_data = schemas.AvailableTest(type=test_type, last_test_date=last_test_date)
+
+        if exists:
+            completed_tests.append(test_data)
         else:
-            exists = True
-        if not exists:
-            available.append(schemas.AvailableTest(type=test.type))
-    return available
+            available_tests.append(test_data)
+
+    return schemas.AvailableTestsResponse(
+        available_tests=available_tests,
+        completed_tests=completed_tests
+    )
+
