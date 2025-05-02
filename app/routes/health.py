@@ -69,7 +69,7 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
     today = date.today()
 
     # Все возможные типы тестов
-    test_types = ["shtange", "escal", "escal_daily", "gench", "reactions", "rufie", "strup"]
+    test_types = ["shtange", "escal", "escal_daily", "gench", "reactions", "rufie", "strup", "text_audition"]
     available_tests = []
     completed_tests = []
 
@@ -113,22 +113,28 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
             continue
         elif test_type == "gench":
             test = db.query(models.GenchTestResult).filter_by(user_id=user.id).order_by(models.GenchTestResult.test_date.desc()).first()
-            if test:
+            if test and test.test_date == today:
                 exists = True
                 last_test_date = test.test_date
         elif test_type == "reactions":
             test = db.query(models.ReactionsTestResult).filter_by(user_id=user.id).order_by(models.ReactionsTestResult.test_date.desc()).first()
-            if test:
+            if test and test.test_date == today:
                 exists = True
                 last_test_date = test.test_date
         elif test_type == "rufie":
             test = db.query(models.RufieTestResult).filter_by(user_id=user.id).order_by(models.RufieTestResult.test_date.desc()).first()
-            if test:
+            if test and test.test_date == today:
                 exists = True
                 last_test_date = test.test_date
         elif test_type == "strup":
             test = db.query(models.StrupTestResult).filter_by(user_id=user.id).order_by(models.StrupTestResult.test_date.desc()).first()
-            if test:
+            if test and test.test_date == today:
+                exists = True
+                last_test_date = test.test_date
+        elif test_type == "text_audition":
+            test = db.query(models.TextAuditionResults).filter_by(user_id=user.id).order_by(
+                models.TextAuditionResults.test_date.desc()).first()
+            if test and test.test_date == today:
                 exists = True
                 last_test_date = test.test_date
 
