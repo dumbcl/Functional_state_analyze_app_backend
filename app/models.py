@@ -237,12 +237,18 @@ class TextAuditionResults(Base):
     test_date = Column(Date, default=datetime.utcnow().date)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    mistakes_percentage_read = Column(Float, default=0.0)  # Заглушка
+    mistakes_percentage_repeat = Column(Float, default=0.0)  # Заглушка
+    pauses_count_read = Column(Integer, default=0)  # Заглушка
+    pauses_count_repeat = Column(Integer, default=0)  # Заглушка
+    average_volume_read = Column(Float, default=0.0)  # Заглушка
+    average_volume_repeat = Column(Float, default=0.0)  # Заглушка
+
     # Для связи с пользователем
-    user = relationship("User", back_populates="audio_files")
+    user = relationship("User", back_populates="text_audition_results")
 
 
-User.audio_files = relationship("AudioFile", back_populates="user")
-
+User.text_audition_results = relationship("TextAuditionResults", back_populates="user", uselist=False)
 User.escal_daily_results = relationship("EscalDailyResults", back_populates="user", uselist=False)
 User.reactions_test_results = relationship("ReactionsTestResult", back_populates="user", uselist=False)
 User.escal_results = relationship("EscalResults", back_populates="user", uselist=False)

@@ -170,6 +170,48 @@ class TextAuditionResultResponse(BaseModel):
     repeat_text_path: str
     test_date: str
     created_at: str
+    mistakes_percentage_read: float = 0.0
+    mistakes_percentage_repeat: float = 0.0
+    pauses_count_read: int = 0
+    pauses_count_repeat: int = 0
+    average_volume_read: float = 0.0
+    average_volume_repeat: float = 0.0
+
+    class Config:
+        orm_mode = True
+
+class DailyTestResult(BaseModel):
+    date: date
+    shtange_result: str
+    shtange_result_indicator: int
+    shtange_test_result_indicator_average: float
+    personal_report: str
+    pulseAverage: float
+    pulseMax: int
+    pulseMin: int
+    rufie_result: str
+    rufie_result_indicator: int
+    rufie_test_result_indicator_average: float
+    strup_result_estimation: str
+    strup_result: int
+    strup_test_result_average: float
+    gench_result_estimation: str
+    gench_result_indicator: int
+    gench_test_result_indicator_average: float
+    reactions_visual_errors: int
+    reactions_audio_errors: int
+    reactions_visual_errors_average: float
+    reactions_audio_errors_average: float
+    pauses_count_read: int
+    pauses_count_repeat: int
+    pauses_count_read_average: float
+    pauses_count_repeat_average: float
+    average_volume_read: float
+    average_volume_repeat: float
+    average_volume_read_average: float
+    average_volume_repeat_average: float
+    day_description: str
+    day_type: str
 
     class Config:
         orm_mode = True

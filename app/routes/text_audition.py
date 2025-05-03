@@ -6,6 +6,9 @@ from app import models, schemas, database, auth
 from pathlib import Path
 import shutil
 
+from app.outside_logic.audio_logic import calculate_mistakes_percentage, calculate_pauses_count, \
+    calculate_average_volume
+
 router = APIRouter()
 
 def get_db():
@@ -41,7 +44,7 @@ def get_texts_for_auditions():
     )
 
 @router.post("/text-audition-result", response_model=schemas.TextAuditionResultResponse)
-async def upload_audio_files(
+async def post_text_audition_result(
     read_text_file: UploadFile = File(...),
     repeat_text_file: UploadFile = File(...),
     db: Session = Depends(get_db),
@@ -61,11 +64,24 @@ async def upload_audio_files(
         with open(repeat_text_file_path, "wb") as buffer:
             shutil.copyfileobj(repeat_text_file.file, buffer)
 
+        mistakes_percentage_read = calculate_mistakes_percentage("")
+        mistakes_percentage_repeat = calculate_mistakes_percentage("")
+        pauses_count_read = calculate_pauses_count("")
+        pauses_count_repeat = calculate_pauses_count("")
+        average_volume_read = calculate_average_volume("")
+        average_volume_repeat = calculate_average_volume("")
+
         # Сохраняем информацию в базе данных
         text_audition_result = models.TextAuditionResults(
             user_id=user.id,
             read_text_file_path=read_text_file_path,
-            repeat_text_file_path=repeat_text_file_path
+            repeat_text_file_path=repeat_text_file_path,
+            mistakes_percentage_read=mistakes_percentage_read,
+            mistakes_percentage_repeat=mistakes_percentage_repeat,
+            pauses_count_read=pauses_count_read,
+            pauses_count_repeat=pauses_count_repeat,
+            average_volume_read=average_volume_read,
+            average_volume_repeat=average_volume_repeat
         )
         db.add(text_audition_result)
         db.commit()
