@@ -4,7 +4,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app import models, auth, database
-from app.schemas import DailyTestResult
+from app.outside_logic.fs_description import generate_fs_description
+from app.outside_logic.fs_score import evaluate_shtange, evaluate_rufie, evaluate_strup, evaluate_gench, \
+    evaluate_reactions_visual_errors, evaluate_reactions_audio_errors, evaluate_pauses_count_read, \
+    evaluate_pauses_count_repeat, evaluate_pulse, evaluate_personal_report, calculate_fs_category
+from app.schemas import DailyTestResult, ShtangeTestResult, ReactionsTestResult, TextAuditionTestResult, \
+    GenchTestResult, StrupTestResult, RufieTestResult, PulseMeasurementResult, PersonalReportTestResult
 
 router = APIRouter()
 
@@ -42,12 +47,17 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
         # PersonalReportTestResult для этого дня
         personal_report_result = db.query(models.PersonalReportTestResult).filter_by(user_id=user.id, test_date=test_date).first()
         personal_report = personal_report_result.days_comparison if personal_report_result else ""
+        personal_report_indicator = personal_report_result.performance_measure if personal_report_result else 0
+        personal_report_all = db.query(models.PersonalReportTestResult).filter_by(user_id=user.id).all()
+        personal_report_indicator_average = sum([pm.performance_measure for pm in personal_report_all]) / len(personal_report_all) if personal_report_all else 0
 
         # PulseMeasurement для этого дня
         pulse_measurements = db.query(models.PulseMeasurement).filter_by(user_id=user.id, measured_at=test_date).all()
         pulseAverage = sum([pm.value for pm in pulse_measurements]) / len(pulse_measurements) if pulse_measurements else 0
         pulseMax = max([pm.value for pm in pulse_measurements], default=0)
         pulseMin = min([pm.value for pm in pulse_measurements], default=0)
+        pulse_alltime_measurements = db.query(models.PulseMeasurement).filter_by(user_id=user.id).all()
+        pulse_alltime_average = sum([pm.value for pm in pulse_alltime_measurements]) / len(pulse_alltime_measurements) if pulse_alltime_measurements else 0
 
         # RufieTestResult для этого дня
         rufie_results = db.query(models.RufieTestResult).filter_by(user_id=user.id, test_date=test_date).all()
@@ -85,23 +95,16 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
         average_volume_read_average = db.query(func.avg(models.TextAuditionResults.average_volume_read)).filter_by(user_id=user.id).scalar() or 0
         average_volume_repeat_average = db.query(func.avg(models.TextAuditionResults.average_volume_repeat)).filter_by(user_id=user.id).scalar() or 0
 
-        # Собираем результаты в одном объекте
-        result = DailyTestResult(
-            date=test_date,
-            shtange_result=shtange_result,
+        fs_category = calculate_fs_category(
             shtange_result_indicator=shtange_result_indicator,
             shtange_test_result_indicator_average=shtange_test_result_indicator_average,
-            personal_report=personal_report,
+            personal_report=personal_report_indicator,
+            personal_report_average=personal_report_indicator_average,
             pulseAverage=pulseAverage,
-            pulseMax=pulseMax,
-            pulseMin=pulseMin,
-            rufie_result=rufie_result,
+            pulseAverageAllDays=pulse_alltime_average,
             rufie_result_indicator=rufie_result_indicator,
-            rufie_test_result_indicator_average=rufie_test_result_indicator_average,
-            strup_result_estimation=strup_result_estimation,
             strup_result=strup_result,
             strup_test_result_average=strup_test_result_average,
-            gench_result_estimation=gench_result_estimation,
             gench_result_indicator=gench_result_indicator,
             gench_test_result_indicator_average=gench_test_result_indicator_average,
             reactions_visual_errors=reactions_visual_errors,
@@ -115,9 +118,95 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
             average_volume_read=average_volume_read,
             average_volume_repeat=average_volume_repeat,
             average_volume_read_average=average_volume_read_average,
-            average_volume_repeat_average=average_volume_repeat_average,
-            day_description="",
-            day_type="GOOD",  # Заглушка
+            average_volume_repeat_average=average_volume_repeat_average
+        )
+
+        # Собираем результаты в одном объекте
+        result = DailyTestResult(
+            date=test_date,
+            shtange_test_result = ShtangeTestResult(
+                shtange_result = shtange_result,
+                shtange_result_indicator = shtange_result_indicator,
+                shtange_test_result_indicator_average = shtange_test_result_indicator_average,
+                type = evaluate_shtange(shtange_result_indicator, shtange_test_result_indicator_average)
+            ),
+            personal_report = PersonalReportTestResult(
+                personal_report_about_day=personal_report,
+                personal_report_current=personal_report_indicator,
+                personal_report_current_average=personal_report_indicator_average,
+                type=evaluate_personal_report(personal_report_indicator),
+            ),
+            pulse_measurement = PulseMeasurementResult(
+                pulseAverage = pulseAverage,
+                pulseMax = pulseMax,
+                pulseMin = pulseMin,
+                type = evaluate_pulse(pulseAverage, pulse_alltime_average)
+            ),
+            rufie_test_result = RufieTestResult(
+                rufie_result = rufie_result,
+                rufie_result_indicator = rufie_result_indicator,
+                rufie_test_result_indicator_average= rufie_test_result_indicator_average,
+                type = evaluate_rufie(rufie_result_indicator)
+            ),
+            strup_test_result = StrupTestResult(
+                strup_result = strup_result,
+                strup_test_result_average = strup_test_result_average,
+                strup_result_estimation=strup_result_estimation,
+                type = evaluate_strup(strup_result)
+            ),
+            gench_test_result = GenchTestResult(
+                gench_result_indicator = gench_result_indicator,
+                gench_result_estimation=gench_result_estimation,
+                gench_test_result_indicator_average=gench_test_result_indicator_average,
+                type = evaluate_gench(gench_result_indicator, gench_test_result_indicator_average)
+            ),
+            reactions_test_result = ReactionsTestResult(
+                reactions_visual_errors = reactions_visual_errors,
+                reactions_audio_errors = reactions_audio_errors,
+                reactions_visual_errors_average = reactions_visual_errors_average,
+                reactions_audio_errors_average=reactions_audio_errors_average,
+                reactions_visual_errors_type = evaluate_reactions_visual_errors(reactions_visual_errors, reactions_visual_errors_average),
+                reactions_audio_errors_type= evaluate_reactions_audio_errors(reactions_audio_errors, reactions_audio_errors_average)
+            ),
+            text_audition_test_result = TextAuditionTestResult(
+                pauses_count_read=pauses_count_read,
+                pauses_count_read_average=pauses_count_read_average,
+                pauses_count_repeat_average=pauses_count_repeat_average,
+                pauses_count_repeat=pauses_count_repeat,
+                average_volume_read=average_volume_read,
+                average_volume_repeat=average_volume_repeat,
+                average_volume_read_average=average_volume_read_average,
+                average_volume_repeat_average=average_volume_repeat_average,
+                pauses_count_read_type=evaluate_pauses_count_read(pauses_count_read, pauses_count_read_average),
+                pauses_count_repeat_type=evaluate_pauses_count_repeat(pauses_count_repeat, pauses_count_repeat_average)
+            ),
+            day_description=generate_fs_description(
+                shtange_result_indicator = shtange_result_indicator,
+                shtange_test_result_indicator_average = shtange_test_result_indicator_average,
+                personal_report = personal_report_indicator,
+                personal_report_average = personal_report_indicator_average,
+                pulseAverage = pulseAverage,
+                pulseAverageAllDays = pulse_alltime_average,
+                rufie_result_indicator = rufie_result_indicator,
+                strup_result = strup_result,
+                strup_test_result_average = strup_test_result_average,
+                gench_result_indicator = gench_result_indicator,
+                gench_test_result_indicator_average = gench_test_result_indicator_average,
+                reactions_visual_errors = reactions_visual_errors,
+                reactions_audio_errors = reactions_audio_errors,
+                reactions_visual_errors_average = reactions_visual_errors_average,
+                reactions_audio_errors_average = reactions_audio_errors_average,
+                pauses_count_read = pauses_count_read,
+                pauses_count_repeat = pauses_count_repeat,
+                pauses_count_read_average = pauses_count_read_average,
+                pauses_count_repeat_average = pauses_count_repeat_average,
+                average_volume_read = average_volume_read,
+                average_volume_repeat = average_volume_repeat,
+                average_volume_read_average = average_volume_read_average,
+                average_volume_repeat_average = average_volume_repeat_average,
+                fs_category = fs_category,
+            ),
+            day_type=fs_category,
         )
 
         daily_results.append(result)

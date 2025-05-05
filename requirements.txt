@@ -8,3 +8,4 @@ passlib[bcrypt]
 pydantic
 dotenv
 python-multipart
+yandex-cloud-ml-sdk

@@ -180,28 +180,60 @@ class TextAuditionResultResponse(BaseModel):
     class Config:
         orm_mode = True
 
-class DailyTestResult(BaseModel):
-    date: date
+class ShtangeTestResult(BaseModel):
     shtange_result: str
     shtange_result_indicator: int
     shtange_test_result_indicator_average: float
-    personal_report: str
+    type: str
+
+class PulseMeasurementResult(BaseModel):
     pulseAverage: float
     pulseMax: int
     pulseMin: int
+    type: str
+
+    class Config:
+        orm_mode = True
+
+class RufieTestResult(BaseModel):
     rufie_result: str
     rufie_result_indicator: int
     rufie_test_result_indicator_average: float
+    type: str
+
+    class Config:
+        orm_mode = True
+
+class StrupTestResult(BaseModel):
     strup_result_estimation: str
     strup_result: int
     strup_test_result_average: float
+    type: str
+
+    class Config:
+        orm_mode = True
+
+class GenchTestResult(BaseModel):
     gench_result_estimation: str
     gench_result_indicator: int
     gench_test_result_indicator_average: float
+    type: str
+
+    class Config:
+        orm_mode = True
+
+class ReactionsTestResult(BaseModel):
     reactions_visual_errors: int
     reactions_audio_errors: int
     reactions_visual_errors_average: float
     reactions_audio_errors_average: float
+    reactions_visual_errors_type: str
+    reactions_audio_errors_type: str
+
+    class Config:
+        orm_mode = True
+
+class TextAuditionTestResult(BaseModel):
     pauses_count_read: int
     pauses_count_repeat: int
     pauses_count_read_average: float
@@ -210,8 +242,34 @@ class DailyTestResult(BaseModel):
     average_volume_repeat: float
     average_volume_read_average: float
     average_volume_repeat_average: float
+    pauses_count_read_type: str
+    pauses_count_repeat_type: str
+
+    class Config:
+        orm_mode = True
+
+class PersonalReportTestResult(BaseModel):
+    personal_report_about_day: int
+    personal_report_current: int
+    personal_report_current_average: int
+    type: str
+
+    class Config:
+        orm_mode = True
+
+class DailyTestResult(BaseModel):
+    date: date
+    shtange_test_result: ShtangeTestResult
+    personal_report: PersonalReportTestResult
+    pulse_measurement: PulseMeasurementResult
+    rufie_test_result: RufieTestResult
+    strup_test_result: StrupTestResult
+    gench_test_result: GenchTestResult
+    reactions_test_result: ReactionsTestResult
+    text_audition_test_result: TextAuditionTestResult
     day_description: str
     day_type: str
 
     class Config:
         orm_mode = True
+
