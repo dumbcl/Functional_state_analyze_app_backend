@@ -26,7 +26,6 @@ def generate_fs_description(
     average_volume_read_average,
     average_volume_repeat_average,
     fs_category,
-    fs_score
 ) -> str:
 
     folder_id = os.getenv("YANDEX_FOLDER_ID")
