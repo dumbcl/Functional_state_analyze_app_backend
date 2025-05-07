@@ -41,35 +41,42 @@ def generate_fs_description(
         auth=api_key,
     )
 
-    prompt = f"""Вот список показателей функционального состояния пользователя:
+    def format_line(name, value):
+        return f"{name}: {value}" if value is not None else None
 
-Проба Штанге (индекс): {shtange_result_indicator}
-Средний показатель пробы Штанге: {shtange_test_result_indicator_average}
-Самооценка состояния: {personal_report}
-Средняя самооценка состояния: {personal_report_average}
-Средний пульс за день: {pulseAverage}
-Средний пульс за все дни: {pulseAverageAllDays}
-Показатель Руфье: {rufie_result_indicator}
-Результат теста Струпа: {strup_result}
-Средний результат теста Струпа: {strup_test_result_average}
-Проба Генча (индекс): {gench_result_indicator}
-Средний показатель пробы Генча: {gench_test_result_indicator_average}
-Ошибки реакции на свет: {reactions_visual_errors}
-Ошибки реакции на звук: {reactions_audio_errors}
-Среднее ошибок реакции на свет: {reactions_visual_errors_average}
-Среднее ошибок реакции на звук: {reactions_audio_errors_average}
-Количество пауз при чтении: {pauses_count_read}
-Количество пауз при повторении: {pauses_count_repeat}
-Среднее количество пауз при чтении: {pauses_count_read_average}
-Среднее количество пауз при повторении: {pauses_count_repeat_average}
-Средняя громкость при чтении: {average_volume_read}
-Средняя громкость при повторении: {average_volume_repeat}
-Среднее громкости при чтении за предыдущие дни: {average_volume_read_average}
-Среднее громкости при повторении за предыдущие дни: {average_volume_repeat_average}
+    lines = [
+        format_line("Проба Штанге (индекс)", shtange_result_indicator),
+        format_line("Средний показатель пробы Штанге", shtange_test_result_indicator_average),
+        format_line("Самооценка состояния", personal_report),
+        format_line("Средняя самооценка состояния", personal_report_average),
+        format_line("Средний пульс за день", pulseAverage),
+        format_line("Средний пульс за все дни", pulseAverageAllDays),
+        format_line("Показатель Руфье", rufie_result_indicator),
+        format_line("Результат теста Струпа", strup_result),
+        format_line("Средний результат теста Струпа", strup_test_result_average),
+        format_line("Проба Генча (индекс)", gench_result_indicator),
+        format_line("Средний показатель пробы Генча", gench_test_result_indicator_average),
+        format_line("Ошибки реакции на свет", reactions_visual_errors),
+        format_line("Ошибки реакции на звук", reactions_audio_errors),
+        format_line("Среднее ошибок реакции на свет", reactions_visual_errors_average),
+        format_line("Среднее ошибок реакции на звук", reactions_audio_errors_average),
+        format_line("Количество пауз при чтении", pauses_count_read),
+        format_line("Количество пауз при повторении", pauses_count_repeat),
+        format_line("Среднее количество пауз при чтении", pauses_count_read_average),
+        format_line("Среднее количество пауз при повторении", pauses_count_repeat_average),
+        format_line("Средняя громкость при чтении", average_volume_read),
+        format_line("Средняя громкость при повторении", average_volume_repeat),
+        format_line("Среднее громкости при чтении за предыдущие дни", average_volume_read_average),
+        format_line("Среднее громкости при повторении за предыдущие дни", average_volume_repeat_average)
+    ]
 
-С помощью своей функции я оценил эти показатели как: {fs_category}.
+    prompt = "Вот список показателей функционального состояния пользователя:\n\n" + \
+             "\n".join([line for line in lines if line]) + "\n\n"
 
-Напиши короткое описание для пользователя, поясняющее его сегодняшнее функциональное состояние, возможные причины такого результата и рекомендации по улучшению состояния."""
+    if fs_category is not None:
+        prompt += f"С помощью своей функции я оценил эти показатели как: {fs_category}.\n\n"
+
+    prompt += "Напиши короткое описание для пользователя, поясняющее его сегодняшнее функциональное состояние, возможные причины такого результата и рекомендации по улучшению состояния."
 
     messages = [
         {"role": "system", "text": "Ты помощник, который анализирует показатели функционального состояния и дает краткое понятное описание и рекомендации."},

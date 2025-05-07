@@ -182,7 +182,7 @@ class TextAuditionResultResponse(BaseModel):
 
 class ShtangeTestResult(BaseModel):
     shtange_result: str
-    shtange_result_indicator: int
+    shtange_result_indicator: float
     shtange_test_result_indicator_average: float
     type: str
 
@@ -215,7 +215,7 @@ class StrupTestResult(BaseModel):
 
 class GenchTestResult(BaseModel):
     gench_result_estimation: str
-    gench_result_indicator: int
+    gench_result_indicator: float
     gench_test_result_indicator_average: float
     type: str
 
@@ -249,9 +249,9 @@ class TextAuditionTestResult(BaseModel):
         orm_mode = True
 
 class PersonalReportTestResult(BaseModel):
-    personal_report_about_day: int
+    personal_report_about_day: str
     personal_report_current: int
-    personal_report_current_average: int
+    personal_report_current_average: float
     type: str
 
     class Config:
@@ -259,16 +259,16 @@ class PersonalReportTestResult(BaseModel):
 
 class DailyTestResult(BaseModel):
     date: date
-    shtange_test_result: ShtangeTestResult
-    personal_report: PersonalReportTestResult
-    pulse_measurement: PulseMeasurementResult
-    rufie_test_result: RufieTestResult
-    strup_test_result: StrupTestResult
-    gench_test_result: GenchTestResult
-    reactions_test_result: ReactionsTestResult
-    text_audition_test_result: TextAuditionTestResult
-    day_description: str
-    day_type: str
+    shtange_test_result: Optional[ShtangeTestResult] = None
+    personal_report: Optional[PersonalReportTestResult] = None
+    pulse_measurement: Optional[PulseMeasurementResult] = None
+    rufie_test_result: Optional[RufieTestResult] = None
+    strup_test_result: Optional[StrupTestResult] = None
+    gench_test_result: Optional[GenchTestResult] = None
+    reactions_test_result: Optional[ReactionsTestResult] = None
+    text_audition_test_result: Optional[TextAuditionTestResult] = None
+    day_description: Optional[str]
+    day_type: Optional[str]
 
     class Config:
         orm_mode = True

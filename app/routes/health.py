@@ -77,7 +77,7 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
     escal_test_completed = False
 
     # Проверяем, был ли пройден тест "escal"
-    escal_test = db.query(models.EscalTestResult).filter_by(user_id=user.id, test_date=today).first()
+    escal_test = db.query(models.EscalResults).filter_by(user_id=user.id).first()
     if escal_test:
         escal_test_completed = True
 

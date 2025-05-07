@@ -32,7 +32,7 @@ class ShtangeTestResult(Base):
 
     # Новые поля
     result_estimation = Column(String, nullable=True)  # BAD, MEDIUM, GOOD
-    reaction_indicator = Column(Integer, nullable=True)  # heart_rate_after / heart_rate_before
+    reaction_indicator = Column(Float, nullable=True)  # heart_rate_after / heart_rate_before
 
     @classmethod
     def calculate_reaction_indicator(cls, heart_rate_after, heart_rate_before):
@@ -155,7 +155,7 @@ class GenchTestResult(Base):
 
     # Новые поля
     result_estimation = Column(String, nullable=True)  # BAD, MEDIUM, GOOD
-    reaction_indicator = Column(Integer, nullable=True)
+    reaction_indicator = Column(Float, nullable=True)
 
     @classmethod
     def calculate_reaction_indicator(cls, heart_rate_after, heart_rate_before):
