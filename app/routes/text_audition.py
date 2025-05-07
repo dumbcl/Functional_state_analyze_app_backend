@@ -74,8 +74,8 @@ async def post_text_audition_result(
         # Сохраняем информацию в базе данных
         text_audition_result = models.TextAuditionResults(
             user_id=user.id,
-            read_text_file_path=read_text_file_path,
-            repeat_text_file_path=repeat_text_file_path,
+            read_text_path=read_text_file_path,
+            repeat_text_path=repeat_text_file_path,
             mistakes_percentage_read=mistakes_percentage_read,
             mistakes_percentage_repeat=mistakes_percentage_repeat,
             pauses_count_read=pauses_count_read,
