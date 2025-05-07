@@ -24,7 +24,7 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
     # Получаем все уникальные даты, когда пользователь проходил тесты
     unique_test_dates = db.query(models.ShtangeTestResult.test_date).filter_by(user_id=user.id).distinct().all()
     unique_test_dates += db.query(models.PersonalReportTestResult.test_date).filter_by(user_id=user.id).distinct().all()
-    unique_test_dates += db.query(models.PulseMeasurement.measured_at).filter_by(user_id=user.id).distinct().all()
+    #unique_test_dates += db.query(models.PulseMeasurement.measured_at).filter_by(user_id=user.id).distinct().all()
     unique_test_dates += db.query(models.RufieTestResult.test_date).filter_by(user_id=user.id).distinct().all()
     unique_test_dates += db.query(models.StrupTestResult.test_date).filter_by(user_id=user.id).distinct().all()
     unique_test_dates += db.query(models.GenchTestResult.test_date).filter_by(user_id=user.id).distinct().all()
@@ -51,7 +51,7 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
         personal_report_indicator_average = sum([pm.performance_measure for pm in personal_report_all]) / len(personal_report_all) if personal_report_all else None
 
         # PulseMeasurement для этого дня
-        pulse_measurements = db.query(models.PulseMeasurement).filter_by(user_id=user.id, measured_at=test_date).all()
+        pulse_measurements = db.query(models.PulseMeasurement).filter_by(user_id=user.id, created_at=test_date).all()
         pulseAverage = sum([pm.value for pm in pulse_measurements]) / len(pulse_measurements) if pulse_measurements else None
         pulseMax = max([pm.value for pm in pulse_measurements], default=None)
         pulseMin = min([pm.value for pm in pulse_measurements], default=None)
@@ -123,7 +123,7 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
 
         # Собираем результаты в одном объекте
         result = DailyTestResult(
-            date=test_date,
+            date=str(test_date),
             shtange_test_result = evaluate_shtange(
                 shtange_result = shtange_result,
                 shtange_result_indicator = shtange_result_indicator,

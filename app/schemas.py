@@ -258,7 +258,7 @@ class PersonalReportTestResult(BaseModel):
         orm_mode = True
 
 class DailyTestResult(BaseModel):
-    date: date
+    date: str
     shtange_test_result: Optional[ShtangeTestResult] = None
     personal_report: Optional[PersonalReportTestResult] = None
     pulse_measurement: Optional[PulseMeasurementResult] = None

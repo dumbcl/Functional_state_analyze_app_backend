@@ -16,7 +16,7 @@ class PulseMeasurement(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     value = Column(Integer, nullable=False)
     measured_at = Column(DateTime, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(Date, default=datetime.utcnow().date)
     __table_args__ = (UniqueConstraint('user_id', 'measured_at', name='_user_measured_uc'),)
 
 
