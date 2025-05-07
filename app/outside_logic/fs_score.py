@@ -64,7 +64,7 @@ def calculate_fs_category(
         if personal_report < personal_report_average * 0.85:
             score -= 1
 
-    if (pulseAverage is not None) and (pulseAverageAllDays is not None):
+    if (pulseAverage is not None) and (pulseAverageAllDays is not None) and (pulseAverageAllDays != 0):
         pulse_diff = abs(pulseAverage - pulseAverageAllDays) / pulseAverageAllDays
         if pulse_diff > 0.2:
             score -= 1
@@ -89,12 +89,12 @@ def calculate_fs_category(
         if pauses_count_repeat > float(pauses_count_repeat_average) * 1.15:
             score -= 1
 
-    if (average_volume_read is not None) and (average_volume_read_average is not None):
+    if (average_volume_read is not None) and (average_volume_read_average is not None) and (average_volume_read_average != 0):
         vol_read_diff = abs(average_volume_read - average_volume_read_average) / average_volume_read_average
         if vol_read_diff > 0.15:
             score -= 1
 
-    if (average_volume_repeat is not None) and (average_volume_repeat_average is not None):
+    if (average_volume_repeat is not None) and (average_volume_repeat_average is not None) and (average_volume_repeat_average != 0):
         vol_repeat_diff = abs(average_volume_repeat - average_volume_repeat_average) / average_volume_repeat_average
         if vol_repeat_diff > 0.15:
             score -= 1
@@ -139,7 +139,7 @@ def evaluate_personal_report(report_text, report_current, report_average) -> Opt
     )
 
 def evaluate_pulse(pulse_avg, pulse_max, pulse_min, pulse_alltime_avg) -> Optional[PulseMeasurementResult]:
-    if None in (pulse_avg, pulse_max, pulse_min, pulse_alltime_avg):
+    if (None in (pulse_avg, pulse_max, pulse_min, pulse_alltime_avg)) and (pulse_alltime_avg != 0):
         return None
     deviation = abs(pulse_avg - pulse_alltime_avg) / pulse_alltime_avg
     status = 'BAD' if deviation > 0.2 else 'GOOD'
