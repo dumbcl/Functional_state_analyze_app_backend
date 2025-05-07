@@ -139,7 +139,7 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
                 last_test_date = test.test_date
 
         # Добавляем тест в нужный список
-        test_data = schemas.AvailableTest(type=test_type, last_test_date=last_test_date)
+        test_data = schemas.AvailableTest(type=test_type, last_test_date=str(last_test_date))
 
         if exists:
             completed_tests.append(test_data)

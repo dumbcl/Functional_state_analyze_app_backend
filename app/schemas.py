@@ -1,8 +1,6 @@
 from datetime import datetime, date
 from typing import List, Tuple, Optional
 from pydantic import BaseModel
-from sqlalchemy import Date
-
 
 class UserCreate(BaseModel):
     username: str
@@ -31,7 +29,7 @@ class EscalTestIn(BaseModel):
 
 class AvailableTest(BaseModel):
     type: str
-    last_test_date: Optional[Date] = None  # Добавляем дату последнего прохождения теста (необязательное поле)
+    last_test_date: Optional[str] = None  # Добавляем дату последнего прохождения теста (необязательное поле)
 
     class Config:
         orm_mode = True
