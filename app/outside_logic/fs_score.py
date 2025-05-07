@@ -212,8 +212,8 @@ def evaluate_text_audition(pauses_read, pauses_repeat, pauses_read_avg, pauses_r
     if None in (pauses_read, pauses_repeat, pauses_read_avg, pauses_repeat_avg,
                 vol_read, vol_repeat, vol_read_avg, vol_repeat_avg):
         return None
-    pauses_read_status = 'BAD' if pauses_read > pauses_read_avg * 1.15 else 'GOOD'
-    pauses_repeat_status = 'BAD' if pauses_repeat > pauses_repeat_avg * 1.15 else 'GOOD'
+    pauses_read_status = 'BAD' if pauses_read > float(pauses_read_avg) * 1.15 else 'GOOD'
+    pauses_repeat_status = 'BAD' if pauses_repeat > float(pauses_repeat_avg) * 1.15 else 'GOOD'
     return TextAuditionTestResult(
         pauses_count_read=pauses_read,
         pauses_count_repeat=pauses_repeat,
