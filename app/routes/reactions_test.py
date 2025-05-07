@@ -15,7 +15,7 @@ def get_db():
         db.close()
 
 
-@router.post("/reactions-test", response_model=schemas.ReactionsTestResultsResponse)
+@router.post("/reactions-test")
 def create_reactions_test(
         data: schemas.ReactionsTestResultsCreate,
         db: Session = Depends(get_db),
@@ -26,8 +26,8 @@ def create_reactions_test(
     audio_reactions = json.dumps(data.audio)
 
     # Высчитываем количество ошибок
-    visual_errors = models.ReactionsTestResult.calculate_errors(data.visual)
-    audio_errors = models.ReactionsTestResult.calculate_errors(data.audio)
+    visual_errors = models.ReactionsTestResult.calculate_errors(visual_reactions)
+    audio_errors = models.ReactionsTestResult.calculate_errors(audio_reactions)
 
     # Создаём запись в базе данных
     test = models.ReactionsTestResult(
@@ -41,4 +41,4 @@ def create_reactions_test(
     db.add(test)
     db.commit()
     db.refresh(test)
-    return test
+    return {"status": "added"}

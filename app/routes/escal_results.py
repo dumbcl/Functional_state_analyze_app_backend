@@ -11,7 +11,7 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/escal-results", response_model=schemas.EscalResultsResponse)
+@router.post("/escal-results")
 def create_escal_results(
     results: schemas.EscalResultsCreate,
     db: Session = Depends(get_db),
@@ -21,7 +21,7 @@ def create_escal_results(
     db.add(db_results)
     db.commit()
     db.refresh(db_results)
-    return db_results
+    return {"status": "added"}
 
 @router.get("/escal-results", response_model=schemas.EscalResultsResponse)
 def get_escal_results(db: Session = Depends(get_db), user: models.User = Depends(auth.get_current_user)):

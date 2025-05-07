@@ -12,7 +12,7 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/personal-report-test", response_model=schemas.PersonalReportTestResultResponse)
+@router.post("/personal-report-test")
 def create_personal_report_test(
     data: schemas.PersonalReportTestResultCreate,
     db: Session = Depends(get_db),
@@ -26,4 +26,4 @@ def create_personal_report_test(
     db.add(test)
     db.commit()
     db.refresh(test)
-    return test
+    return {"status": "added"}

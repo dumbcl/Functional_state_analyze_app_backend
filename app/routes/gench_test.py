@@ -14,7 +14,7 @@ def get_db():
         db.close()
 
 
-@router.post("/gench-test", response_model=schemas.GenchTestResultResponse)
+@router.post("/gench-test")
 def create_gench_test(
         data: schemas.GenchTestResultCreate,
         db: Session = Depends(get_db),
@@ -35,4 +35,4 @@ def create_gench_test(
     db.add(test)
     db.commit()
     db.refresh(test)
-    return test
+    return {"status": "added"}

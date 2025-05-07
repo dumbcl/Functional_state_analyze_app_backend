@@ -12,7 +12,7 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/rufie-test", response_model=schemas.RufieTestResultResponse)
+@router.post("/rufie-test")
 def create_rufie_test(
     data: schemas.RufieTestResultCreate,
     db: Session = Depends(get_db),
@@ -34,4 +34,4 @@ def create_rufie_test(
     db.add(test)
     db.commit()
     db.refresh(test)
-    return test
+    return {"status": "added"}

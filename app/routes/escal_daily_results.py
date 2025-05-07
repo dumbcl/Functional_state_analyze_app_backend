@@ -12,7 +12,7 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/escal-daily-results", response_model=schemas.EscalDailyResultsResponse)
+@router.post("/escal-daily-results")
 def create_escal_daily_results(
     data: schemas.EscalDailyResultsCreate,
     db: Session = Depends(get_db),
@@ -42,4 +42,4 @@ def create_escal_daily_results(
     db.add(test)
     db.commit()
     db.refresh(test)
-    return test
+    return {"status": "added"}

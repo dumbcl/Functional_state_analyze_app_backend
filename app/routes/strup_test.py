@@ -12,7 +12,7 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/strup-test", response_model=schemas.StrupTestResultResponse)
+@router.post("/strup-test")
 def create_strup_test(
     data: schemas.StrupTestResultCreate,
     db: Session = Depends(get_db),
@@ -28,4 +28,4 @@ def create_strup_test(
     db.add(test)
     db.commit()
     db.refresh(test)
-    return test
+    return {"status": "added"}
