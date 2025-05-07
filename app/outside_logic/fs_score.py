@@ -82,11 +82,11 @@ def calculate_fs_category(
             score -= 1
 
     if (pauses_count_read is not None) and (pauses_count_read_average is not None):
-        if pauses_count_read > pauses_count_read_average * 1.15:
+        if pauses_count_read > float(pauses_count_read_average) * 1.15:
             score -= 1
 
     if (pauses_count_repeat is not None) and (pauses_count_repeat_average is not None):
-        if pauses_count_repeat > pauses_count_repeat_average * 1.15:
+        if pauses_count_repeat > float(pauses_count_repeat_average) * 1.15:
             score -= 1
 
     if (average_volume_read is not None) and (average_volume_read_average is not None):
