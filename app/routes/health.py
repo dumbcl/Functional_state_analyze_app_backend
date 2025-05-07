@@ -69,7 +69,7 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
     today = date.today()
 
     # Все возможные типы тестов
-    test_types = ["shtange", "escal", "escal_daily", "gench", "reactions", "rufie", "strup", "text_audition"]
+    test_types = ["shtange", "escal", "escal_daily", "gench", "reactions", "rufie", "strup", "text_audition", "personal_report"]
     available_tests = []
     completed_tests = []
 
@@ -134,6 +134,12 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
         elif test_type == "text_audition":
             test = db.query(models.TextAuditionResults).filter_by(user_id=user.id).order_by(
                 models.TextAuditionResults.test_date.desc()).first()
+            if test and test.test_date == today:
+                exists = True
+                last_test_date = test.test_date
+        elif test_type == "personal_report":
+            test = db.query(models.PersonalReportTestResult).filter_by(user_id=user.id).order_by(
+                models.PersonalReportTestResult.test_date.desc()).first()
             if test and test.test_date == today:
                 exists = True
                 last_test_date = test.test_date

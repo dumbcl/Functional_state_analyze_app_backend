@@ -61,7 +61,7 @@ def calculate_fs_category(
 
     # Дополнительные показатели
     if (personal_report is not None) and (personal_report_average is not None):
-        if personal_report < personal_report_average * 0.85:
+        if float(personal_report) < personal_report_average * 0.85:
             score -= 1
 
     if (pulseAverage is not None) and (pulseAverageAllDays is not None) and (pulseAverageAllDays != 0):
@@ -70,23 +70,23 @@ def calculate_fs_category(
             score -= 1
 
     if (strup_result is not None) and (strup_test_result_average is not None):
-        if strup_result < strup_test_result_average * 0.85:
+        if float(strup_result) < strup_test_result_average * 0.85:
             score -= 1
 
     if (reactions_visual_errors is not None) and (reactions_visual_errors_average is not None):
-        if reactions_visual_errors > reactions_visual_errors_average * 1.15:
+        if float(reactions_visual_errors) > reactions_visual_errors_average * 1.15:
             score -= 1
 
     if (reactions_audio_errors is not None) and (reactions_audio_errors_average is not None):
-        if reactions_audio_errors > reactions_audio_errors_average * 1.15:
+        if float(reactions_audio_errors) > reactions_audio_errors_average * 1.15:
             score -= 1
 
     if (pauses_count_read is not None) and (pauses_count_read_average is not None):
-        if pauses_count_read > float(pauses_count_read_average) * 1.15:
+        if float(pauses_count_read) > float(pauses_count_read_average) * 1.15:
             score -= 1
 
     if (pauses_count_repeat is not None) and (pauses_count_repeat_average is not None):
-        if pauses_count_repeat > float(pauses_count_repeat_average) * 1.15:
+        if float(pauses_count_repeat) > float(pauses_count_repeat_average) * 1.15:
             score -= 1
 
     if (average_volume_read is not None) and (average_volume_read_average is not None) and (average_volume_read_average != 0):
@@ -212,8 +212,8 @@ def evaluate_text_audition(pauses_read, pauses_repeat, pauses_read_avg, pauses_r
     if None in (pauses_read, pauses_repeat, pauses_read_avg, pauses_repeat_avg,
                 vol_read, vol_repeat, vol_read_avg, vol_repeat_avg):
         return None
-    pauses_read_status = 'BAD' if pauses_read > float(pauses_read_avg) * 1.15 else 'GOOD'
-    pauses_repeat_status = 'BAD' if pauses_repeat > float(pauses_repeat_avg) * 1.15 else 'GOOD'
+    pauses_read_status = 'BAD' if float(pauses_read) > float(pauses_read_avg) * 1.15 else 'GOOD'
+    pauses_repeat_status = 'BAD' if float(pauses_repeat) > float(pauses_repeat_avg) * 1.15 else 'GOOD'
     return TextAuditionTestResult(
         pauses_count_read=pauses_read,
         pauses_count_repeat=pauses_repeat,
