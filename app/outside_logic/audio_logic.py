@@ -48,7 +48,7 @@ class TextComparer:
             except LookupError:
                 nltk.download(res, quiet=True)
         self.language = language
-        self.stops = set(stopwords.words(language)) if language in stopwords.fileids else set()
+        self.stops = set(stopwords.words(language)) if language in stopwords.fileids() else set()
 
     def preprocess_text(self, text, remove_stopwords=False):
         """
@@ -66,7 +66,7 @@ class TextComparer:
         text = re.sub(r'[^\w\s]|[\d]', ' ', text)
 
         # Токенизация
-        tokens = word_tokenize(text)
+        tokens = word_tokenize(text, language=self.language)
 
         # Удаление стоп-слов (если требуется)
         if remove_stopwords:
