@@ -81,6 +81,8 @@ async def post_text_audition_result(
         with open(repeat_text_file_path, "wb") as buffer:
             shutil.copyfileobj(repeat_text_file.file, buffer)
 
+        with open('logs.txt', 'a') as  file:
+            file.write("saved\n")
         wav_filename = os.path.splitext(read_text_file.filename)[0] + ".wav"
         read_text_file_converted_path = os.path.join(upload_folder, wav_filename)
         audio = AudioSegment.from_file(read_text_file_path, format="m4a")
@@ -90,17 +92,23 @@ async def post_text_audition_result(
         repeat_text_file_converted_path = os.path.join(upload_folder, wav_filename)
         audio = AudioSegment.from_file(repeat_text_file_path, format="m4a")
         audio.export(repeat_text_file_converted_path, format="wav")
-
+        with open('logs.txt', 'a') as  file:
+            file.write("converted\n")
         transcript_read = recognize(read_text_file_converted_path)
         transcript_repeat = recognize(repeat_text_file_converted_path)
+        with open('logs.txt', 'a') as  file:
+            file.write("transcripted\n")
         comparer = TextComparer(language='russian')
         read_analysis = comparer.analyze(read_list[read_text_index], transcript_read)
         repeat_analysis = comparer.analyze(repeat_list[repeat_text_index], transcript_repeat)
         quality_score_read = read_analysis['scores']['overall_score']/100
         quality_score_repeat = repeat_analysis['scores']['overall_score']/100
+        with open('logs.txt', 'a') as  file:
+            file.write("analized\n")
         average_volume_read, pauses_count_read = analyze_audio_volume_and_pauses(read_text_file_converted_path)
         average_volume_repeat, pauses_count_repeat = analyze_audio_volume_and_pauses(repeat_text_file_converted_path)
-
+        with open('logs.txt', 'a') as  file:
+            file.write("analized volume\n")
         # Сохраняем информацию в базе данных
         text_audition_result = models.TextAuditionResults(
             user_id=user.id,
@@ -119,4 +127,4 @@ async def post_text_audition_result(
 
         return {"status": "added"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=501, detail=str(e))
