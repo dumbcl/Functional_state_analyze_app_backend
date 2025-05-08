@@ -119,13 +119,6 @@ class EscalTestResult(Base):
     test_date = Column(Date, default=datetime.utcnow().date)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-class Test(Base):
-    __tablename__ = "tests"
-    id = Column(String, primary_key=True, index=True)
-    type = Column(String, nullable=False)  # shtange, escal, etc.
-    is_active = Column(Boolean, default=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-
 class EscalResults(Base):
     __tablename__ = "escal_results"
 

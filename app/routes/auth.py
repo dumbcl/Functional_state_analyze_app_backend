@@ -5,11 +5,6 @@ from app.database import SessionLocal
 
 router = APIRouter()
 
-DEFAULT_TESTS = [
-    {"id": "shtange", "type": "shtange"},
-    {"id": "escal", "type": "escal"}
-]
-
 def get_db():
     db = SessionLocal()
     try:
@@ -27,13 +22,6 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-
-    # создаем начальные тесты
-    for t in DEFAULT_TESTS:
-        test = models.Test(id=t["id"], type=t["type"], is_active=True, user_id=new_user.id)
-        db.add(test)
-    db.commit()
-
     access_token = auth.create_access_token(data={"sub": new_user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
