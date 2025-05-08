@@ -161,6 +161,8 @@ class EscalDailyResultsResponse(EscalDailyResultsCreate):
 class TextAuditionResponse(BaseModel):
     read_text: str
     repeat_text: str
+    read_index: int
+    repeat_index: int
 
     class Config:
         orm_mode = True

@@ -5,9 +5,9 @@ import os
 from app import models, schemas, database, auth
 from pathlib import Path
 import shutil
+from pydub import AudioSegment
 
-from app.outside_logic.audio_logic import calculate_mistakes_percentage, calculate_pauses_count, \
-    calculate_average_volume
+from app.outside_logic.audio_logic import analyze_audio_volume_and_pauses, TextComparer, recognize
 
 router = APIRouter()
 
@@ -32,32 +32,36 @@ read_list = [
 ]
 
 repeat_list = [
-    "Тундра – это бескрайние просторы, где царят холод и ветер. Даже летом здесь прохладно, а земля остается промерзлой. Несмотря на суровые условия, тундра полна жизни: олени, песцы, лемминги и множество птиц находят здесь дом. Летом тундра расцветает – появляются ягоды, грибы и яркие цветы. Это хрупкая экосистема, которая требует бережного отношения.",
-    "Степь – это бескрайнее море трав. Здесь нет деревьев, только ковыль, полынь и другие растения, устойчивые к засухе. Степные ветры гонят волны по траве, создавая ощущение движения. В степи живут суслики, лисы, степные орлы и множество других животных. Это место свободы и простора, где взгляд теряется в горизонте.",
-    "Болото – это загадочное место, где земля и вода смешиваются. Кажется, что здесь царит запустение, но на самом деле болота – это важная часть экосистемы. Они фильтруют воду, дают приют редким птицам и растениям. На болотах растут клюква и морошка, а в тенистых заводях прячутся лягушки и ужи. Это мир тишины и спокойствия.",
-    "Саванна – это бескрайние травянистые равнины с редкими деревьями. Здесь обитают слоны, львы, жирафы и другие удивительные животные. Климат саванны суров – долгая засуха сменяется сезоном дождей. В это время земля оживает, покрываясь зеленью и цветами. Саванна – это символ дикой природы, где выживает сильнейший.",
-    "Тропический лес – это буйство жизни. Густые заросли, высокие деревья, лианы и яркие цветы создают непроходимые джунгли. Здесь всегда тепло и влажно, что способствует росту растений. В тропиках обитают обезьяны, попугаи, ягуары и множество других видов. Это легкие планеты, которые требуют защиты от вырубки.",
-    "Полярные регионы – это царство льда и холода. Ледники, айсберги и бескрайние снежные просторы создают суровый, но прекрасный пейзаж. Здесь живут пингвины, белые медведи, тюлени и другие животные, приспособленные к экстремальным условиям. Полярные сияния добавляют этим местам волшебства. Это места, где природа показывает свою мощь.",
-    "Озеро – это островок спокойствия. Его гладкая поверхность отражает небо и окружающие пейзажи. В озере кипит жизнь: рыбы, лягушки, водоросли и микроорганизмы создают сложную экосистему. Озера бывают большими и маленькими, пресными и солеными, но все они прекрасны по-своему. Это места для отдыха и размышлений.",
-    "Водопад – это мощь и красота воды. Срываясь с высоты, вода создает грохот и миллионы брызг, переливающихся на солнце. Водопады бывают высокими и широкими, шумными и спокойными. Они притягивают взгляд и завораживают своей энергией. Возле водопадов всегда свежо, а воздух наполнен отрицательными ионами, которые полезны для здоровья.",
-    "Поле – это простор и свобода. Здесь растут злаки, подсолнухи, кукуруза и другие культуры. Летом поле шумит от ветра, а осенью дарит урожай. В высокой траве прячутся мыши, зайцы и множество насекомых. Полевые цветы добавляют красок, а жаворонки поют в небе. Это место труда и гармонии человека с природой.",
-    "Пещеры – это таинственный подземный мир. Сталактиты и сталагмиты создают причудливые формы, а в темноте живут уникальные существа. Пещеры хранят следы древних времен – наскальные рисунки, окаменелости. Здесь царит вечная тишина и прохлада. Исследование пещер – это путешествие в неизведанное, где каждый поворот может открыть что-то новое."
+    "Лес полон жизни. Птицы поют в кронах деревьев, белки прыгают с ветки на ветку, а под ногами шуршат опавшие листья. Воздух наполнен ароматом хвои и свежести. Здесь царит гармония.",
+    "Река несет свои воды через долины и горы. Ее течение то спокойное, то бурное. На берегах растут ивы, а в воде плещется рыба. Река – это вечное движение.",
+    "Горы величественны и неприступны. Их вершины теряются в облаках, а склоны покрыты лесами. В горах тишина, нарушаемая лишь шумом ветра и криками орлов.",
+    "Луга летом утопают в цветах. Ромашки, васильки и клевер создают пестрый ковер. Над ними кружат пчелы и бабочки. Здесь царит покой и солнечное тепло.",
+    "Океан бескрайний и загадочный. Его волны то ласковые, то грозные. Вода переливается всеми оттенками синего. Океан дарит ощущение свободы и вечности.",
+    "Осенью лес меняет наряд. Листья становятся золотыми, красными, оранжевыми. Воздух прохладен, а под ногами шуршит ковер из листвы. Это время тихой красоты.",
+    "Пустыня кажется безжизненной, но это не так. Кактусы, ящерицы и змеи приспособились к жаре. Ночью здесь холодно, а днем – палящее солнце. Суровая, но прекрасная земля.",
+    "Весной природа пробуждается. Почки набухают, появляются первые цветы, а птицы возвращаются с юга. Воздух наполнен ароматами свежести. Это время обновления.",
+    "Зимой лес засыпает. Деревья укрыты снегом, а земля – белым покрывалом. Тишину нарушает лишь скрип снега под ногами. Морозный воздух бодрит и очищает.",
+    "Болото – мир тишины и спокойствия. Здесь растут клюква и осока, а в воде прячутся лягушки. Болота – важная часть экосистемы, фильтрующая воду и дающая приют многим видам."
 ]
 
 @router.get("/text-for-auditions", response_model=schemas.TextAuditionResponse)
 def get_texts_for_auditions():
     # Выбираем случайный элемент из каждого списка
-    read_text = random.choice(read_list)
-    repeat_text = random.choice(repeat_list)
+    read_index = random.randint(0, len(read_list))
+    repeat_index = random.randint(0, len(repeat_list))
 
     # Отправляем их в ответ
     return schemas.TextAuditionResponse(
-        read_text=read_text,
-        repeat_text=repeat_text
+        read_text=read_list[read_index],
+        repeat_text=repeat_list[repeat_index],
+        read_index=read_index,
+        repeat_index=repeat_index,
     )
 
 @router.post("/text-audition-result")
 async def post_text_audition_result(
+    read_text_index: int,
+    repeat_text_index: int,
     read_text_file: UploadFile = File(...),
     repeat_text_file: UploadFile = File(...),
     db: Session = Depends(get_db),
@@ -77,20 +81,33 @@ async def post_text_audition_result(
         with open(repeat_text_file_path, "wb") as buffer:
             shutil.copyfileobj(repeat_text_file.file, buffer)
 
-        mistakes_percentage_read = calculate_mistakes_percentage("")
-        mistakes_percentage_repeat = calculate_mistakes_percentage("")
-        pauses_count_read = calculate_pauses_count("")
-        pauses_count_repeat = calculate_pauses_count("")
-        average_volume_read = calculate_average_volume("")
-        average_volume_repeat = calculate_average_volume("")
+        wav_filename = os.path.splitext(read_text_file.filename)[0] + ".wav"
+        read_text_file_converted_path = os.path.join(upload_folder, wav_filename)
+        audio = AudioSegment.from_file(read_text_file_path, format="m4a")
+        audio.export(read_text_file_converted_path, format="wav")
+
+        wav_filename = os.path.splitext(repeat_text_file.filename)[0] + ".wav"
+        repeat_text_file_converted_path = os.path.join(upload_folder, wav_filename)
+        audio = AudioSegment.from_file(repeat_text_file_path, format="m4a")
+        audio.export(repeat_text_file_converted_path, format="wav")
+
+        transcript_read = recognize(read_text_file_converted_path)
+        transcript_repeat = recognize(repeat_text_file_converted_path)
+        comparer = TextComparer(language='russian')
+        read_analysis = comparer.analyze(read_list[read_text_index], transcript_read)
+        repeat_analysis = comparer.analyze(repeat_list[repeat_text_index], transcript_repeat)
+        quality_score_read = read_analysis['scores']['overall_score']/100
+        quality_score_repeat = repeat_analysis['scores']['overall_score']/100
+        average_volume_read, pauses_count_read = analyze_audio_volume_and_pauses(read_text_file_converted_path)
+        average_volume_repeat, pauses_count_repeat = analyze_audio_volume_and_pauses(repeat_text_file_converted_path)
 
         # Сохраняем информацию в базе данных
         text_audition_result = models.TextAuditionResults(
             user_id=user.id,
             read_text_path=read_text_file_path,
             repeat_text_path=repeat_text_file_path,
-            mistakes_percentage_read=mistakes_percentage_read,
-            mistakes_percentage_repeat=mistakes_percentage_repeat,
+            quality_score_read=quality_score_read,
+            quality_score_repeat=quality_score_repeat,
             pauses_count_read=pauses_count_read,
             pauses_count_repeat=pauses_count_repeat,
             average_volume_read=average_volume_read,

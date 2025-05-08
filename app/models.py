@@ -237,8 +237,8 @@ class TextAuditionResults(Base):
     test_date = Column(Date, default=datetime.utcnow().date)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    mistakes_percentage_read = Column(Float, default=0.0)  # Заглушка
-    mistakes_percentage_repeat = Column(Float, default=0.0)  # Заглушка
+    quality_score_read = Column(Float, default=0.0)  # Заглушка
+    quality_score_repeat = Column(Float, default=0.0)  # Заглушка
     pauses_count_read = Column(Integer, default=0)  # Заглушка
     pauses_count_repeat = Column(Integer, default=0)  # Заглушка
     average_volume_read = Column(Float, default=0.0)  # Заглушка

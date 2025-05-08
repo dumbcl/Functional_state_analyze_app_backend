@@ -9,3 +9,11 @@ pydantic
 dotenv
 python-multipart
 yandex-cloud-ml-sdk
+librosa
+numpy
+matplotlib
+scipy
+ffmpeg-python
+pydub
+nltk
+yandex-speechkit
