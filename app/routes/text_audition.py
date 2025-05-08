@@ -96,8 +96,8 @@ async def post_text_audition_result(
         repeat_analysis = comparer.analyze(repeat_list[repeat_text_index], transcript_repeat)
         quality_score_read = float(read_analysis['scores']['overall_score']/100)
         quality_score_repeat = float(repeat_analysis['scores']['overall_score']/100)
-        average_volume_read, pauses_count_read = float(analyze_audio_volume_and_pauses(read_text_file_converted_path))
-        average_volume_repeat, pauses_count_repeat = float(analyze_audio_volume_and_pauses(repeat_text_file_converted_path))
+        average_volume_read, pauses_count_read = analyze_audio_volume_and_pauses(read_text_file_converted_path)
+        average_volume_repeat, pauses_count_repeat = analyze_audio_volume_and_pauses(repeat_text_file_converted_path)
         # Сохраняем информацию в базе данных
         text_audition_result = models.TextAuditionResults(
             user_id=user.id,
@@ -105,10 +105,10 @@ async def post_text_audition_result(
             repeat_text_path=repeat_text_file_path,
             quality_score_read=quality_score_read,
             quality_score_repeat=quality_score_repeat,
-            pauses_count_read=pauses_count_read,
-            pauses_count_repeat=pauses_count_repeat,
-            average_volume_read=average_volume_read,
-            average_volume_repeat=average_volume_repeat
+            pauses_count_read=float(pauses_count_read),
+            pauses_count_repeat=float(pauses_count_repeat),
+            average_volume_read=float(average_volume_read),
+            average_volume_repeat=float(average_volume_repeat)
         )
         db.add(text_audition_result)
         db.commit()
