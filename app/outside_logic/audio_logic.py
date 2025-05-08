@@ -35,15 +35,6 @@ def recognize(audio):
       raw_text += res.raw_text
    return raw_text
 
-# Загрузка необходимых ресурсов NLTK
-try:
-    nltk.data.find('tokenizers/punkt')
-    nltk.data.find('corpora/stopwords')
-except LookupError:
-    nltk.download('punkt')
-    nltk.download('stopwords')
-
-
 class TextComparer:
     def __init__(self, language='russian'):
         """
@@ -51,6 +42,12 @@ class TextComparer:
 
         :param language: язык текста ('russian', 'english' и др.)
         """
+        try:
+            nltk.data.find('tokenizers/punkt')
+            nltk.data.find('corpora/stopwords')
+        except LookupError:
+            nltk.download('punkt')
+            nltk.download('stopwords')
         self.language = language
         self.stops = set(stopwords.words(language)) if language in stopwords._fileids else set()
 
