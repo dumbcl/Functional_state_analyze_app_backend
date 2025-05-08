@@ -99,6 +99,10 @@ async def post_text_audition_result(
         with open('logs.txt', 'a') as  file:
             file.write("transcripted\n")
         comparer = TextComparer(language='russian')
+        with open('logs.txt', 'a') as  file:
+            file.write("transcripted o read_list[read_text_index]\n")
+        with open('logs.txt', 'a') as  file:
+            file.write("transcripted a read_list[read_text_index]\n")
         read_analysis = comparer.analyze(read_list[read_text_index], transcript_read)
         repeat_analysis = comparer.analyze(repeat_list[repeat_text_index], transcript_repeat)
         quality_score_read = read_analysis['scores']['overall_score']/100
