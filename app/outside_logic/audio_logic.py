@@ -42,14 +42,13 @@ class TextComparer:
 
         :param language: язык текста ('russian', 'english' и др.)
         """
-        try:
-            nltk.data.find('tokenizers/punkt')
-            nltk.data.find('corpora/stopwords')
-        except LookupError:
-            nltk.download('punkt')
-            nltk.download('stopwords')
+        for res in ("punkt", "stopwords"):
+            try:
+                nltk.data.find(res)
+            except LookupError:
+                nltk.download(res, quiet=True)
         self.language = language
-        self.stops = set(stopwords.words(language)) if language in stopwords._fileids else set()
+        self.stops = set(stopwords.words(language)) if language in stopwords.fileids else set()
 
     def preprocess_text(self, text, remove_stopwords=False):
         """
