@@ -1,5 +1,5 @@
 import random
-from fastapi import APIRouter, File, UploadFile, HTTPException, Depends
+from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, Form
 from sqlalchemy.orm import Session
 import os
 from app import models, schemas, database, auth
@@ -60,8 +60,8 @@ def get_texts_for_auditions():
 
 @router.post("/text-audition-result")
 async def post_text_audition_result(
-    read_text_index: int,
-    repeat_text_index: int,
+    read_text_index: int = Form(...),
+    repeat_text_index: int = Form(...),
     read_text_file: UploadFile = File(...),
     repeat_text_file: UploadFile = File(...),
     db: Session = Depends(get_db),
