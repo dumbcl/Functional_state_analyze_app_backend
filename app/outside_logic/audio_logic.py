@@ -69,6 +69,7 @@ class TextComparer:
         nltk.download('punkt')
         nltk.download('wordnet')
         nltk.download('omw-1.4')
+        nltk.download('stopwords')
         self.language = language
         self.stops = (
             set(stopwords.words(language)) if language in stopwords.fileids() else set()
