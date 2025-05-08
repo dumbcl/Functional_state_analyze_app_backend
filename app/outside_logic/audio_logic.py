@@ -33,6 +33,7 @@ def recognize(audio):
    raw_text = ""
    for c, res in enumerate(result):
       raw_text += res.raw_text
+   return raw_text
 
 # Загрузка необходимых ресурсов NLTK
 try:
