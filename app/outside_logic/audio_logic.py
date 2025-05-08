@@ -57,13 +57,14 @@ class TextComparer:
         """
         resources = [
             ("tokenizers/punkt", "punkt"),
+            ("tokenizers/punkt_tab", "punkt"),
             ("corpora/stopwords", "stopwords"),
         ]
         for path, package in resources:
             try:
                 nltk.data.find(path)
             except LookupError:
-                nltk.download(package, quiet=True)
+                nltk.download(package, quiet=True, raise_on_error=True, force=True)
 
         self.language = language
         self.stops = (
