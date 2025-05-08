@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import librosa
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,14 +10,20 @@ from nltk.corpus import stopwords
 from nltk.metrics import edit_distance
 import re
 import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 import difflib
 import json
 from argparse import ArgumentParser
 from speechkit import model_repository, configure_credentials, creds
 from speechkit.stt import AudioProcessingType
 import os
+import difflib
+import re
+from typing import Dict, List, Tuple
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 def recognize(audio):
    configure_credentials(
@@ -36,214 +44,172 @@ def recognize(audio):
    return raw_text
 
 class TextComparer:
-    def __init__(self, language='russian'):
-        """
-        Инициализация анализатора соответствия текстов
+    """Compare two texts with several lexical metrics."""
 
-        :param language: язык текста ('russian', 'english' и др.)
+    def __init__(self, language: str = "russian") -> None:
+        """Ensure that required NLTK resources are available and
+        initialise stop‑word list.
+
+        Parameters
+        ----------
+        language: str, optional
+            NLTK language code (default is ``"russian"``).
         """
-        for res in ("punkt", "stopwords"):
+        resources = [
+            ("tokenizers/punkt", "punkt"),
+            ("corpora/stopwords", "stopwords"),
+        ]
+        for path, package in resources:
             try:
-                nltk.data.find(res)
+                nltk.data.find(path)
             except LookupError:
-                nltk.download(res, quiet=True)
+                nltk.download(package, quiet=True)
+
         self.language = language
-        self.stops = set(stopwords.words(language)) if language in stopwords.fileids() else set()
+        self.stops = (
+            set(stopwords.words(language)) if language in stopwords.fileids() else set()
+        )
 
-    def preprocess_text(self, text, remove_stopwords=False):
-        """
-        Предобработка текста: приведение к нижнему регистру,
-        удаление знаков пунктуации и стоп-слов (опционально)
+    # ------------------------------------------------------------------
+    # Pre‑processing helpers
+    # ------------------------------------------------------------------
 
-        :param text: текст для обработки
-        :param remove_stopwords: удалять ли стоп-слова
-        :return: обработанный список слов
+    def preprocess_text(self, text: str, remove_stopwords: bool = False) -> List[str]:
+        """Lower‑case, strip punctuation/digits, tokenise.
+
+        The resulting list always contains *word* tokens; punctuation and
+        numbers are removed. If *remove_stopwords* is ``True`` and a list
+        exists for the chosen language, stop‑words are filtered out.
         """
-        # Приведение к нижнему регистру
         text = text.lower()
-
-        # Удаление знаков пунктуации и цифр
-        text = re.sub(r'[^\w\s]|[\d]', ' ', text)
-
-        # Токенизация
+        text = re.sub(r"[^\w\s]|[\d]", " ", text)
         tokens = word_tokenize(text, language=self.language)
-
-        # Удаление стоп-слов (если требуется)
         if remove_stopwords:
-            tokens = [word for word in tokens if word not in self.stops]
-
+            tokens = [tok for tok in tokens if tok not in self.stops]
         return tokens
 
-    def word_error_rate(self, reference, hypothesis):
-        """
-        Расчет Word Error Rate (WER)
+    # ------------------------------------------------------------------
+    # Metrics
+    # ------------------------------------------------------------------
 
-        :param reference: эталонный текст (список слов)
-        :param hypothesis: проверяемый текст (список слов)
-        :return: WER, количество замен, вставок, удалений
-        """
-        # Используем расстояние Левенштейна для последовательностей
-        edit_matrix = np.zeros((len(reference) + 1, len(hypothesis) + 1))
+    @staticmethod
+    def _levenshtein_ops(ref: List[str], hyp: List[str]) -> Tuple[int, int, int]:
+        """Return (substitutions, insertions, deletions) between *ref* and *hyp*."""
+        m, n = len(ref), len(hyp)
+        D = np.zeros((m + 1, n + 1), dtype=int)
+        D[0, :] = np.arange(n + 1)
+        D[:, 0] = np.arange(m + 1)
 
-        # Заполнение первого столбца и строки
-        for i in range(len(reference) + 1):
-            edit_matrix[i][0] = i
-        for j in range(len(hypothesis) + 1):
-            edit_matrix[0][j] = j
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                cost = 0 if ref[i - 1] == hyp[j - 1] else 1
+                D[i, j] = min(D[i - 1, j] + 1, D[i, j - 1] + 1, D[i - 1, j - 1] + cost)
 
-        # Заполнение матрицы
-        for i in range(1, len(reference) + 1):
-            for j in range(1, len(hypothesis) + 1):
-                if reference[i - 1] == hypothesis[j - 1]:
-                    edit_matrix[i][j] = edit_matrix[i - 1][j - 1]
-                else:
-                    substitution = edit_matrix[i - 1][j - 1] + 1
-                    insertion = edit_matrix[i][j - 1] + 1
-                    deletion = edit_matrix[i - 1][j] + 1
-                    edit_matrix[i][j] = min(substitution, insertion, deletion)
-
-        # Подсчет операций редактирования
-        i, j = len(reference), len(hypothesis)
-        substitutions, insertions, deletions = 0, 0, 0
-
+        # back‑trace operations
+        i, j = m, n
+        subs = ins = dels = 0
         while i > 0 or j > 0:
-            if i > 0 and j > 0 and reference[i - 1] == hypothesis[j - 1]:
+            if i > 0 and j > 0 and ref[i - 1] == hyp[j - 1]:
                 i, j = i - 1, j - 1
+            elif i > 0 and j > 0 and D[i, j] == D[i - 1, j - 1] + 1:
+                subs += 1
+                i, j = i - 1, j - 1
+            elif j > 0 and D[i, j] == D[i, j - 1] + 1:
+                ins += 1
+                j -= 1
             else:
-                if i > 0 and j > 0 and edit_matrix[i][j] == edit_matrix[i - 1][j - 1] + 1:
-                    substitutions += 1
-                    i, j = i - 1, j - 1
-                elif j > 0 and edit_matrix[i][j] == edit_matrix[i][j - 1] + 1:
-                    insertions += 1
-                    j = j - 1
-                elif i > 0 and edit_matrix[i][j] == edit_matrix[i - 1][j] + 1:
-                    deletions += 1
-                    i = i - 1
+                dels += 1
+                i -= 1
 
-        wer = (substitutions + insertions + deletions) / max(len(reference), 1)
-        return wer, substitutions, insertions, deletions
+        return subs, ins, dels
 
-    def cosine_sim(self, reference, hypothesis):
-        """
-        Расчет косинусного сходства между текстами
+    def word_error_rate(self, reference: List[str], hypothesis: List[str]) -> Tuple[float, int, int, int]:
+        subs, ins, dels = self._levenshtein_ops(reference, hypothesis)
+        wer = (subs + ins + dels) / max(len(reference), 1)
+        return wer, subs, ins, dels
 
-        :param reference: эталонный текст
-        :param hypothesis: проверяемый текст
-        :return: косинусное сходство (0-1)
-        """
-        vectorizer = TfidfVectorizer()
-        vectors = vectorizer.fit_transform([reference, hypothesis])
-        return cosine_similarity(vectors)[0, 1]
+    @staticmethod
+    def cosine_sim(reference: str, hypothesis: str) -> float:
+        vecs = TfidfVectorizer().fit_transform([reference, hypothesis])
+        return cosine_similarity(vecs)[0, 1]
 
-    def jaccard_similarity(self, set1, set2):
-        """
-        Расчет сходства Жаккара между множествами слов
+    @staticmethod
+    def jaccard_similarity(seq1, seq2) -> float:
+        s1, s2 = set(seq1), set(seq2)
+        return len(s1 & s2) / max(len(s1 | s2), 1)
 
-        :param set1: первое множество слов
-        :param set2: второе множество слов
-        :return: коэффициент Жаккара (0-1)
-        """
-        set1, set2 = set(set1), set(set2)
-        intersection = len(set1.intersection(set2))
-        union = len(set1.union(set2))
-        return intersection / max(union, 1)
+    # ------------------------------------------------------------------
+    # Diagnostics / highlighting
+    # ------------------------------------------------------------------
 
-    def highlight_differences(self, reference, hypothesis):
-        """
-        Подсветка различий между текстами
-
-        :param reference: эталонный текст
-        :param hypothesis: проверяемый текст
-        :return: словарь с подсвеченными различиями
-        """
-        # Используем difflib для нахождения различий
+    @staticmethod
+    def highlight_differences(reference: str, hypothesis: str) -> Dict[str, List[str]]:
         d = difflib.Differ()
         diff = list(d.compare(reference.split(), hypothesis.split()))
-
-        # Классификация различий
-        reference_only = [word[2:] for word in diff if word.startswith('- ')]
-        hypothesis_only = [word[2:] for word in diff if word.startswith('+ ')]
-        common = [word[2:] for word in diff if word.startswith('  ')]
-
         return {
-            'common_words': common,
-            'missing_in_hypothesis': reference_only,
-            'extra_in_hypothesis': hypothesis_only
+            "common_words": [w[2:] for w in diff if w.startswith("  ")],
+            "missing_in_hypothesis": [w[2:] for w in diff if w.startswith("- ")],
+            "extra_in_hypothesis": [w[2:] for w in diff if w.startswith("+ ")],
         }
 
-    def analyze(self, reference_text, hypothesis_text, detailed=True):
-        """
-        Полный анализ соответствия текстов
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
 
-        :param reference_text: эталонный текст
-        :param hypothesis_text: проверяемый текст (распознанный из речи)
-        :param detailed: включить подробный анализ
-        :return: словарь с результатами анализа
-        """
-        # Предобработка текстов
+    def analyze(self, reference_text: str, hypothesis_text: str, *, detailed: bool = True):
+        """Return a dict with WER, similarity scores and (optionally) details."""
         reference_raw = reference_text.strip()
         hypothesis_raw = hypothesis_text.strip()
 
-        reference_tokens = self.preprocess_text(reference_raw)
-        hypothesis_tokens = self.preprocess_text(hypothesis_raw)
+        ref_tokens = self.preprocess_text(reference_raw)
+        hyp_tokens = self.preprocess_text(hypothesis_raw)
 
-        # Основные метрики
-        wer, substitutions, insertions, deletions = self.word_error_rate(reference_tokens, hypothesis_tokens)
+        wer, subs, ins, dels = self.word_error_rate(ref_tokens, hyp_tokens)
         cosine = self.cosine_sim(reference_raw, hypothesis_raw)
-        jaccard = self.jaccard_similarity(reference_tokens, hypothesis_tokens)
+        jaccard = self.jaccard_similarity(ref_tokens, hyp_tokens)
 
-        # Точность на уровне слов (сколько правильных слов из всех)
-        correct_words = len(reference_tokens) - (substitutions + deletions)
-        word_accuracy = correct_words / max(len(reference_tokens), 1)
+        correct_words = len(ref_tokens) - (subs + dels)
+        word_accuracy = correct_words / max(len(ref_tokens), 1)
+        recognition_completeness = 1 - dels / max(len(ref_tokens), 1)
 
-        # Процент распознанного текста
-        recognition_completeness = 1 - (deletions / max(len(reference_tokens), 1))
-
-        # Результаты анализа
         result = {
-            'word_error_rate': wer,
-            'word_accuracy': word_accuracy,
-            'cosine_similarity': cosine,
-            'jaccard_similarity': jaccard,
-            'recognition_completeness': recognition_completeness,
-            'error_details': {
-                'substitutions': substitutions,
-                'insertions': insertions,
-                'deletions': deletions
+            "word_error_rate": wer,
+            "word_accuracy": word_accuracy,
+            "cosine_similarity": cosine,
+            "jaccard_similarity": jaccard,
+            "recognition_completeness": recognition_completeness,
+            "error_details": {
+                "substitutions": subs,
+                "insertions": ins,
+                "deletions": dels,
             },
-            'reference_word_count': len(reference_tokens),
-            'transcript_word_count': len(hypothesis_tokens)
+            "reference_word_count": len(ref_tokens),
+            "transcript_word_count": len(hyp_tokens),
         }
 
-        # Дополнительный детальный анализ
         if detailed:
-            diff_details = self.highlight_differences(reference_raw, hypothesis_raw)
-            result['differences'] = diff_details
+            diff = self.highlight_differences(reference_raw, hypothesis_raw)
+            result["differences"] = diff
 
-            # Оценка по шкале от 0 до 100
-            accuracy_score = min(100, max(0, 100 * (1 - wer)))
-            similarity_score = min(100, max(0, 100 * (0.6 * cosine + 0.4 * jaccard)))
+            accuracy_score = 100 * (1 - wer)
+            similarity_score = 100 * (0.6 * cosine + 0.4 * jaccard)
+            overall = 0.7 * accuracy_score + 0.3 * similarity_score
 
-            # Обобщенная оценка качества повторения
-            overall_score = min(100, max(0, (0.7 * accuracy_score + 0.3 * similarity_score)))
-
-            result['scores'] = {
-                'accuracy_score': round(accuracy_score, 1),
-                'similarity_score': round(similarity_score, 1),
-                'overall_score': round(overall_score, 1)
+            result["scores"] = {
+                "accuracy_score": round(accuracy_score, 1),
+                "similarity_score": round(similarity_score, 1),
+                "overall_score": round(overall, 1),
             }
 
-            # Качественная оценка
-            if overall_score >= 90:
+            if overall >= 90:
                 quality = "Отлично"
-            elif overall_score >= 75:
+            elif overall >= 75:
                 quality = "Хорошо"
-            elif overall_score >= 60:
+            elif overall >= 60:
                 quality = "Удовлетворительно"
             else:
                 quality = "Требуется улучшение"
-
-            result['quality_assessment'] = quality
+            result["quality_assessment"] = quality
 
         return result
 
