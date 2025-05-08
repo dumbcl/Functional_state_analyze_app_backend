@@ -55,17 +55,20 @@ class TextComparer:
         language: str, optional
             NLTK language code (default is ``"russian"``).
         """
-        resources = [
-            ("tokenizers/punkt", "punkt"),
-            ("tokenizers/punkt_tab", "punkt"),
-            ("corpora/stopwords", "stopwords"),
-        ]
-        for path, package in resources:
-            try:
-                nltk.data.find(path)
-            except LookupError:
-                nltk.download(package, quiet=True, raise_on_error=True, force=True)
-
+        # resources = [
+        #     ("tokenizers/punkt", "punkt"),
+        #     ("tokenizers/punkt_tab", "punkt"),
+        #     ("corpora/stopwords", "stopwords"),
+        # ]
+        # for path, package in resources:
+        #     try:
+        #         nltk.data.find(path)
+        #     except LookupError:
+        #         nltk.download(package, quiet=True, raise_on_error=True, force=True)
+        nltk.download('punkt_tab')
+        nltk.download('punkt')
+        nltk.download('wordnet')
+        nltk.download('omw-1.4')
         self.language = language
         self.stops = (
             set(stopwords.words(language)) if language in stopwords.fileids() else set()
