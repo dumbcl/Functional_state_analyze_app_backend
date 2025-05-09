@@ -104,7 +104,7 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
 
         if test_type == "shtange":
             test = db.query(models.ShtangeTestResult).filter_by(user_id=user.id).order_by(models.ShtangeTestResult.test_date.desc()).first()
-            if test:
+            if test and test.test_date == today:
                 exists = True
                 last_test_date = test.test_date
         elif test_type == "escal":

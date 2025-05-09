@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime, Date, Boolean, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -182,10 +184,9 @@ class ReactionsTestResult(Base):
     user = relationship("User", back_populates="reactions_test_results")
 
     @classmethod
-    def calculate_errors(cls, reactions: str):
-        pairs = reactions  # Преобразуем строку JSON обратно в список пар
+    def calculate_errors(cls, reactions: List[Tuple[int, int]]) -> int:
         errors = 0
-        for pair in pairs:
+        for pair in reactions:
             if abs(pair[0] - pair[1]) > 500:
                 errors += 1
         return errors
