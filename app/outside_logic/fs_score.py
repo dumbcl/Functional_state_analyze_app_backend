@@ -70,15 +70,15 @@ def calculate_fs_category(
             score -= 1
 
     if (strup_result is not None) and (strup_test_result_average is not None):
-        if float(strup_result) < strup_test_result_average * 0.85:
+        if float(strup_result) < float(strup_test_result_average) * 0.85:
             score -= 1
 
     if (reactions_visual_errors is not None) and (reactions_visual_errors_average is not None):
-        if float(reactions_visual_errors) > reactions_visual_errors_average * 1.15:
+        if float(reactions_visual_errors) > float(reactions_visual_errors_average) * 1.15:
             score -= 1
 
     if (reactions_audio_errors is not None) and (reactions_audio_errors_average is not None):
-        if float(reactions_audio_errors) > reactions_audio_errors_average * 1.15:
+        if float(reactions_audio_errors) > float(reactions_audio_errors_average) * 1.15:
             score -= 1
 
     if (pauses_count_read is not None) and (pauses_count_read_average is not None):
@@ -196,8 +196,8 @@ def evaluate_gench(gench_result_estimation, gench_indicator, gench_avg) -> Optio
 def evaluate_reactions(visual, audio, visual_avg, audio_avg) -> Optional[ReactionsTestResult]:
     if None in (visual, audio, visual_avg, audio_avg):
         return None
-    visual_status = 'BAD' if visual > visual_avg * 1.15 else 'GOOD'
-    audio_status = 'BAD' if audio > audio_avg * 1.15 else 'GOOD'
+    visual_status = 'BAD' if float(visual) > float(visual_avg) * 1.15 else 'GOOD'
+    audio_status = 'BAD' if float(audio) > float(audio_avg) * 1.15 else 'GOOD'
     return ReactionsTestResult(
         reactions_visual_errors=visual,
         reactions_audio_errors=audio,
