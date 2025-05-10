@@ -36,7 +36,7 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
 
     daily_results = []
 
-    for test_date in list(reversed(unique_test_dates)):
+    for test_date in sorted(unique_test_dates, reverse=True):
         # Запрашиваем результаты из разных таблиц для конкретной даты
         shtange_results = db.query(models.ShtangeTestResult).filter_by(user_id=user.id, test_date=test_date).all()
         shtange_result = shtange_results[0].result_estimation if shtange_results else None

@@ -50,9 +50,9 @@ def calculate_fs_category(
             score += 2
 
     if strup_result is not None:
-        if strup_result < 30:
+        if strup_result < 10:
             score -= 2
-        elif strup_result > 60:
+        elif strup_result > 17:
             score += 2
 
     if (gench_result_indicator is not None) and (gench_test_result_indicator_average is not None):
@@ -169,9 +169,9 @@ def evaluate_rufie(rufie_result, rufie_indicator, rufie_avg) -> Optional[RufieTe
 def evaluate_strup(strup_result_estimation, strup_result, strup_avg) -> Optional[StrupTestResult]:
     if None in (strup_result_estimation, strup_result, strup_avg):
         return None
-    if strup_result < 30:
+    if strup_result < 10:
         status = 'BAD'
-    elif strup_result > 60:
+    elif strup_result > 17:
         status = 'GOOD'
     else:
         status = 'MEDIUM'

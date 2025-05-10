@@ -95,9 +95,9 @@ class StrupTestResult(Base):
 
     @classmethod
     def calculate_result_estimation(cls, result):
-        if result < 20:
+        if result < 10:
             return "BAD"
-        elif result > 40:
+        elif result > 16:
             return "GOOD"
         return "MEDIUM"
 
@@ -187,7 +187,7 @@ class ReactionsTestResult(Base):
     def calculate_errors(cls, reactions: List[Tuple[int, int]]) -> int:
         errors = 0
         for pair in reactions:
-            if abs(pair[0] - pair[1]) > 500:
+            if abs(pair[0] - pair[1]) > 1000:
                 errors += 1
         return errors
 
@@ -231,12 +231,12 @@ class TextAuditionResults(Base):
     test_date = Column(Date, default=datetime.utcnow().date)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    quality_score_read = Column(Float, default=0.0)  # Заглушка
-    quality_score_repeat = Column(Float, default=0.0)  # Заглушка
-    pauses_count_read = Column(Integer, default=0)  # Заглушка
-    pauses_count_repeat = Column(Integer, default=0)  # Заглушка
-    average_volume_read = Column(Float, default=0.0)  # Заглушка
-    average_volume_repeat = Column(Float, default=0.0)  # Заглушка
+    quality_score_read = Column(Float)  # Заглушка
+    quality_score_repeat = Column(Float)  # Заглушка
+    pauses_count_read = Column(Integer)  # Заглушка
+    pauses_count_repeat = Column(Integer)  # Заглушка
+    average_volume_read = Column(Float)  # Заглушка
+    average_volume_repeat = Column(Float)  # Заглушка
 
     # Для связи с пользователем
     user = relationship("User", back_populates="text_audition_results")
