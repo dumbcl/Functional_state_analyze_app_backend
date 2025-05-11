@@ -47,8 +47,8 @@ repeat_list = [
 @router.get("/text-for-auditions", response_model=schemas.TextAuditionResponse)
 def get_texts_for_auditions():
     # Выбираем случайный элемент из каждого списка
-    read_index = random.randint(0, len(read_list))
-    repeat_index = random.randint(0, len(repeat_list))
+    read_index = random.randint(0, len(read_list) - 1)
+    repeat_index = random.randint(0, len(repeat_list) - 1)
 
     # Отправляем их в ответ
     return schemas.TextAuditionResponse(
@@ -81,6 +81,11 @@ async def post_text_audition_result(
         with open(repeat_text_file_path, "wb") as buffer:
             shutil.copyfileobj(repeat_text_file.file, buffer)
 
+        with open('logs.txt', 'a') as file:
+            file.write(f"hoy {read_text_file_path} \n")
+        with open('logs.txt', 'a') as file:
+            file.write(f"hoy {repeat_text_file_path} \n")
+
         wav_filename = os.path.splitext(read_text_file.filename)[0] + ".wav"
         read_text_file_converted_path = os.path.join(upload_folder, wav_filename)
         audio = AudioSegment.from_file(read_text_file_path, format="m4a")
@@ -90,8 +95,18 @@ async def post_text_audition_result(
         repeat_text_file_converted_path = os.path.join(upload_folder, wav_filename)
         audio = AudioSegment.from_file(repeat_text_file_path, format="m4a")
         audio.export(repeat_text_file_converted_path, format="wav")
+
+        with open('logs.txt', 'a') as file:
+            file.write(f"hoy {read_text_file_converted_path} \n")
+        with open('logs.txt', 'a') as file:
+            file.write(f"hoy {repeat_text_file_converted_path} \n")
+
         transcript_read = recognize(read_text_file_converted_path)
+        with open('logs.txt', 'a') as file:
+            file.write(f"hoy {transcript_read} \n")
         transcript_repeat = recognize(repeat_text_file_converted_path)
+        with open('logs.txt', 'a') as file:
+            file.write(f"hoy {transcript_repeat} \n")
         comparer = TextComparer(language='russian')
         read_analysis = comparer.analyze(read_list[read_text_index], transcript_read)
         repeat_analysis = comparer.analyze(repeat_list[repeat_text_index], transcript_repeat)

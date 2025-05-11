@@ -219,25 +219,17 @@ class TextComparer:
 
         return result
 
-
 def analyze_audio_volume_and_pauses(file_path, pause_threshold_db=20, min_pause_duration=1.5):
     y, sr = librosa.load(file_path)
-
     hop_length = 512
     rms = librosa.feature.rms(y=y, hop_length=hop_length)[0]
 
-    mean_volume = np.mean(rms)
-
-    # Переводим RMS в дБ для лучшей работы с порогами
     db_rms = librosa.amplitude_to_db(rms, ref=np.max)
 
-    # Сглаживаем кривую громкости медианным фильтром
     db_rms_smooth = medfilt(db_rms, kernel_size=15)
 
-    # Вычисляем адаптивный порог на основе локального среднего
-    window_size = int(sr / hop_length * 3)  # окно в 3 секунды
+    window_size = int(sr / hop_length * 3)
     local_mean = np.zeros_like(db_rms_smooth)
-
     for i in range(len(db_rms_smooth)):
         start = max(0, i - window_size // 2)
         end = min(len(db_rms_smooth), i + window_size // 2)
@@ -250,7 +242,6 @@ def analyze_audio_volume_and_pauses(file_path, pause_threshold_db=20, min_pause_
 
     pauses = []
     current_pause_start = None
-
     for i in range(len(is_pause)):
         if is_pause[i] and (i == 0 or not is_pause[i - 1]):
             current_pause_start = i
@@ -268,4 +259,5 @@ def analyze_audio_volume_and_pauses(file_path, pause_threshold_db=20, min_pause_
         duration = end_time - start_time
         pauses.append((start_time, end_time, duration))
 
-    return mean_volume, len(pauses)
+    mean_db = np.mean(db_rms)
+    return mean_db, len(pauses)

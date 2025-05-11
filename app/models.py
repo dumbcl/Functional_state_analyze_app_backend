@@ -231,12 +231,12 @@ class TextAuditionResults(Base):
     test_date = Column(Date, default=datetime.utcnow().date)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    quality_score_read = Column(Float)  # Заглушка
-    quality_score_repeat = Column(Float)  # Заглушка
-    pauses_count_read = Column(Integer)  # Заглушка
-    pauses_count_repeat = Column(Integer)  # Заглушка
-    average_volume_read = Column(Float)  # Заглушка
-    average_volume_repeat = Column(Float)  # Заглушка
+    quality_score_read = Column(Float)
+    quality_score_repeat = Column(Float)
+    pauses_count_read = Column(Integer)
+    pauses_count_repeat = Column(Integer)
+    average_volume_read = Column(Float)
+    average_volume_repeat = Column(Float)
 
     # Для связи с пользователем
     user = relationship("User", back_populates="text_audition_results")
