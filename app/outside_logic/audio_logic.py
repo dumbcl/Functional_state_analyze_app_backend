@@ -40,7 +40,9 @@ def recognize(audio):
    result = model.transcribe_file(audio)
    raw_text = ""
    for c, res in enumerate(result):
-      raw_text += res.raw_text
+       with open('logs.txt', 'a') as file:
+           file.write(f"hey {res.raw_text} \n")
+       raw_text += res.raw_text
    return raw_text
 
 class TextComparer:
