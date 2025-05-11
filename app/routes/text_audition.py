@@ -80,6 +80,7 @@ async def post_text_audition_result(
         repeat_text_file_path = os.path.join(upload_folder, repeat_text_file.filename)
         with open(repeat_text_file_path, "wb") as buffer:
             shutil.copyfileobj(repeat_text_file.file, buffer)
+
         wav_filename = os.path.splitext(read_text_file.filename)[0] + ".wav"
         read_text_file_converted_path = os.path.join(upload_folder, wav_filename)
         audio = AudioSegment.from_file(read_text_file_path, format="m4a")
@@ -98,6 +99,10 @@ async def post_text_audition_result(
         quality_score_repeat = float(repeat_analysis['scores']['overall_score']/100)
         average_volume_read, pauses_count_read = analyze_audio_volume_and_pauses(read_text_file_converted_path)
         average_volume_repeat, pauses_count_repeat = analyze_audio_volume_and_pauses(repeat_text_file_converted_path)
+
+
+        with open('logs.txt', 'a') as  file:
+            file.write(f"db {quality_score_read} {quality_score_repeat} {average_volume_read} {pauses_count_read} {average_volume_repeat} {pauses_count_repeat} \n")
         # Сохраняем информацию в базе данных
         text_audition_result = models.TextAuditionResults(
             user_id=user.id,
