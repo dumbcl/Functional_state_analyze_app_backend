@@ -244,6 +244,10 @@ class TextAuditionTestResult(BaseModel):
     average_volume_repeat: float
     average_volume_read_average: float
     average_volume_repeat_average: float
+    quality_read: float
+    quality_repeat: float
+    quality_read_average: float
+    quality_repeat_average: float
     quality_read_type: str
     quality_repeat_type: str
 

@@ -224,6 +224,10 @@ def evaluate_text_audition(pauses_read, pauses_repeat, pauses_read_avg, pauses_r
         average_volume_repeat=vol_repeat,
         average_volume_read_average=vol_read_avg,
         average_volume_repeat_average=vol_repeat_avg,
+        quality_read=quality_score_read,
+        quality_repeat=quality_score_repeat,
+        quality_read_average=quality_score_read_avg,
+        quality_repeat_average=quality_score_repeat_avg,
         quality_read_type=quality_read_status,
         quality_repeat_type=quality_repeat_status
     )
