@@ -103,6 +103,14 @@ async def post_text_audition_result(
 
         with open('logs.txt', 'a') as  file:
             file.write(f"db {quality_score_read} {quality_score_repeat} {average_volume_read} {pauses_count_read} {average_volume_repeat} {pauses_count_repeat} \n")
+        with open('logs.txt', 'a') as  file:
+            file.write(f"db {transcript_read} \n")
+        with open('logs.txt', 'a') as file:
+            file.write(f"db {transcript_repeat} \n")
+        with open('logs.txt', 'a') as file:
+            file.write(f"db {read_analysis} \n")
+        with open('logs.txt', 'a') as file:
+            file.write(f"db {repeat_analysis} \n")
         # Сохраняем информацию в базе данных
         text_audition_result = models.TextAuditionResults(
             user_id=user.id,
