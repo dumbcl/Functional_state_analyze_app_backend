@@ -208,12 +208,13 @@ def evaluate_reactions(visual, audio, visual_avg, audio_avg) -> Optional[Reactio
     )
 
 def evaluate_text_audition(pauses_read, pauses_repeat, pauses_read_avg, pauses_repeat_avg,
-                            vol_read, vol_repeat, vol_read_avg, vol_repeat_avg) -> Optional[TextAuditionTestResult]:
+                            vol_read, vol_repeat, vol_read_avg, vol_repeat_avg, quality_score_read, quality_score_read_avg,
+                           quality_score_repeat, quality_score_repeat_avg) -> Optional[TextAuditionTestResult]:
     if None in (pauses_read, pauses_repeat, pauses_read_avg, pauses_repeat_avg,
-                vol_read, vol_repeat, vol_read_avg, vol_repeat_avg):
+                vol_read, vol_repeat, vol_read_avg, vol_repeat_avg, quality_score_repeat, quality_score_repeat_avg):
         return None
-    pauses_read_status = 'BAD' if float(pauses_read) > float(pauses_read_avg) * 1.15 else 'GOOD'
-    pauses_repeat_status = 'BAD' if float(pauses_repeat) > float(pauses_repeat_avg) * 1.15 else 'GOOD'
+    quality_read_status = 'BAD' if quality_score_read < quality_score_read_avg * 1.15 else 'GOOD'
+    quality_repeat_status = 'BAD' if float(quality_score_repeat) < float(quality_score_repeat_avg) * 1.15 else 'GOOD'
     return TextAuditionTestResult(
         pauses_count_read=pauses_read,
         pauses_count_repeat=pauses_repeat,
@@ -223,6 +224,6 @@ def evaluate_text_audition(pauses_read, pauses_repeat, pauses_read_avg, pauses_r
         average_volume_repeat=vol_repeat,
         average_volume_read_average=vol_read_avg,
         average_volume_repeat_average=vol_repeat_avg,
-        pauses_count_read_type=pauses_read_status,
-        pauses_count_repeat_type=pauses_repeat_status
+        quality_read_type=quality_read_status,
+        quality_repeat_type=quality_repeat_status
     )

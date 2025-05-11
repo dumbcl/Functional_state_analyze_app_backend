@@ -244,8 +244,8 @@ class TextAuditionTestResult(BaseModel):
     average_volume_repeat: float
     average_volume_read_average: float
     average_volume_repeat_average: float
-    pauses_count_read_type: str
-    pauses_count_repeat_type: str
+    quality_read_type: str
+    quality_repeat_type: str
 
     class Config:
         orm_mode = True

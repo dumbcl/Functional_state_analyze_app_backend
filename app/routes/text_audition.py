@@ -108,8 +108,9 @@ async def post_text_audition_result(
         with open('logs.txt', 'a') as file:
             file.write(f"hoy {transcript_repeat} \n")
         comparer = TextComparer(language='russian')
-        read_analysis = comparer.analyze(read_list[read_text_index], transcript_read)
-        repeat_analysis = comparer.analyze(repeat_list[repeat_text_index], transcript_repeat)
+        #somewhere read and repeat texts changes don't know why
+        read_analysis = comparer.analyze(read_list[read_text_index], transcript_repeat)
+        repeat_analysis = comparer.analyze(repeat_list[repeat_text_index], transcript_read)
         quality_score_read = float(read_analysis['scores']['overall_score']/100)
         quality_score_repeat = float(repeat_analysis['scores']['overall_score']/100)
         average_volume_read, pauses_count_read = analyze_audio_volume_and_pauses(read_text_file_converted_path)

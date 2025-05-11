@@ -94,6 +94,10 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
         average_volume_repeat = text_audition_results[0].average_volume_repeat if text_audition_results else None
         average_volume_read_average = db.query(func.avg(models.TextAuditionResults.average_volume_read)).filter_by(user_id=user.id).scalar()
         average_volume_repeat_average = db.query(func.avg(models.TextAuditionResults.average_volume_repeat)).filter_by(user_id=user.id).scalar()
+        quality_score_read = text_audition_results[0].quality_score_read if text_audition_results else None
+        quality_score_read_average = db.query(func.avg(models.TextAuditionResults.quality_score_read)).filter_by(user_id=user.id).scalar()
+        quality_score_repeat = text_audition_results[0].quality_score_repeat if text_audition_results else None
+        quality_score_repeat_average = db.query(func.avg(models.TextAuditionResults.quality_score_repeat)).filter_by(user_id=user.id).scalar()
 
         fs_category = calculate_fs_category(
             shtange_result_indicator=shtange_result_indicator,
@@ -170,6 +174,10 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
                 vol_repeat=average_volume_repeat,
                 vol_read_avg=average_volume_read_average,
                 vol_repeat_avg=average_volume_repeat_average,
+                quality_score_read=quality_score_read,
+                quality_score_repeat=quality_score_repeat,
+                quality_score_read_avg=quality_score_read_average,
+                quality_score_repeat_avg=quality_score_repeat_average,
             ),
             day_description=generate_fs_description(
                 shtange_result_indicator = shtange_result_indicator,

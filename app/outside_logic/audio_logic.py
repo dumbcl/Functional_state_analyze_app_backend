@@ -219,7 +219,7 @@ class TextComparer:
 
         return result
 
-def analyze_audio_volume_and_pauses(file_path, pause_threshold_db=20, min_pause_duration=1.5):
+def analyze_audio_volume_and_pauses(file_path, pause_threshold_db=13, min_pause_duration=0.5):
     y, sr = librosa.load(file_path)
     hop_length = 512
     rms = librosa.feature.rms(y=y, hop_length=hop_length)[0]
