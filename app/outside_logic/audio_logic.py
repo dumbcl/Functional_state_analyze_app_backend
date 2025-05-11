@@ -9,7 +9,6 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.metrics import edit_distance
 import re
-import numpy as np
 import difflib
 import json
 from argparse import ArgumentParser
