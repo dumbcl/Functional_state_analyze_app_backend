@@ -86,19 +86,17 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
     # Если "escal" не пройден — возвращаем только "escal" в доступных тестах
     if not escal_test_completed:
         available_tests.append(schemas.AvailableTest(type="escal"))
-        return schemas.AvailableTestsResponse(
-            available_tests=available_tests,
-            completed_tests=[]
-        )
+        #return schemas.AvailableTestsResponse(
+         #   available_tests=available_tests,
+          #  completed_tests=[]
+        #)
 
     # Если "escal" пройден, всегда добавляем "escal_daily" в доступные тесты
-    available_tests.append(schemas.AvailableTest(type="escal_daily"))
+    #available_tests.append(schemas.AvailableTest(type="escal_daily"))
 
     # Для остальных тестов проверяем, были ли они пройдены сегодня
     for test_type in test_types:
         if test_type == "escal":
-            continue
-        elif test_type == "escal_daily":
             continue
 
         exists = False  # Флаг для проверки, был ли тест пройден сегодня
@@ -112,7 +110,11 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
         elif test_type == "escal":
             continue
         elif test_type == "escal_daily":
-            continue
+            test = db.query(models.EscalDailyResults).filter_by(user_id=user.id).order_by(
+                models.EscalDailyResults.test_date.desc()).first()
+            if test and test.test_date == today:
+                exists = True
+                last_test_date = test.test_date
         elif test_type == "gench":
             test = db.query(models.GenchTestResult).filter_by(user_id=user.id).order_by(models.GenchTestResult.test_date.desc()).first()
             if test and test.test_date == today:
