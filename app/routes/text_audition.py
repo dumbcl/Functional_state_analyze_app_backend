@@ -7,16 +7,10 @@ from pathlib import Path
 import shutil
 from pydub import AudioSegment
 
+from app.database import get_db
 from app.outside_logic.audio_logic import analyze_audio_volume_and_pauses, TextComparer, recognize
 
 router = APIRouter()
-
-def get_db():
-    db = database.SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 read_list = [
     "Природа – это бескрайний источник вдохновения. Леса, поля, реки и горы дарят человеку покой и гармонию. Прогулка по утреннему лесу наполняет душу свежестью, а пение птиц создает неповторимую мелодию. Каждая травинка, каждый листок – часть огромного живого организма. В природе нет ничего лишнего, все взаимосвязано. Человек должен бережно относиться к этому богатству, чтобы сохранить его для будущих поколений.",

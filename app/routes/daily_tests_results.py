@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app import models, auth, database
+from app.database import get_db
 from app.outside_logic.fs_description import generate_fs_description
 from app.outside_logic.fs_score import evaluate_shtange, evaluate_rufie, evaluate_strup, evaluate_gench, evaluate_pulse, evaluate_personal_report, calculate_fs_category, \
     evaluate_text_audition, evaluate_reactions
@@ -11,13 +12,6 @@ from app.schemas import DailyTestResult, ShtangeTestResult, ReactionsTestResult,
     GenchTestResult, StrupTestResult, RufieTestResult, PulseMeasurementResult, PersonalReportTestResult
 
 router = APIRouter()
-
-def get_db():
-    db = database.SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.get("/daily-test-results", response_model=List[DailyTestResult])
 def get_daily_test_results(db: Session = Depends(get_db), user: models.User = Depends(auth.get_current_user)):

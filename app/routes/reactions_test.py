@@ -4,16 +4,9 @@ from sqlalchemy.orm import Session
 from app import models, schemas, database, auth
 import json
 
+from app.database import get_db
+
 router = APIRouter()
-
-
-def get_db():
-    db = database.SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 
 @router.post("/reactions-test")
 def create_reactions_test(

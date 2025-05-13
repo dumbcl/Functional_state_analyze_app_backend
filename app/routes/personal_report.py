@@ -2,15 +2,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app import models, schemas, database, auth
+from app.database import get_db
 
 router = APIRouter()
-
-def get_db():
-    db = database.SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post("/personal-report-test")
 def create_personal_report_test(
