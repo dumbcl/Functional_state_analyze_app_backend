@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime, Date, Boolean, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, date
 from app.database import Base
 
 class User(Base):
@@ -18,7 +18,7 @@ class PulseMeasurement(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     value = Column(Integer, nullable=False)
     measured_at = Column(DateTime, nullable=False)
-    created_at = Column(Date, default=datetime.utcnow().date)
+    created_at = Column(Date, default=date.today)
     __table_args__ = (UniqueConstraint('user_id', 'measured_at', name='_user_measured_uc'),)
 
 
@@ -29,7 +29,7 @@ class ShtangeTestResult(Base):
     heart_rate_before = Column(Integer, nullable=False)
     breath_hold_seconds = Column(Integer, nullable=False)
     heart_rate_after = Column(Integer, nullable=False)
-    test_date = Column(Date, default=datetime.utcnow().date)
+    test_date = Column(Date, default=date.today)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Новые поля
@@ -57,7 +57,7 @@ class RufieTestResult(Base):
     measurement_first = Column(Integer, nullable=False)
     measurement_second = Column(Integer, nullable=False)
     measurement_third = Column(Integer, nullable=False)
-    test_date = Column(Date, default=datetime.utcnow().date)
+    test_date = Column(Date, default=date.today)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Новые поля
@@ -87,7 +87,7 @@ class StrupTestResult(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     result = Column(Integer, nullable=False)
-    test_date = Column(Date, default=datetime.utcnow().date)
+    test_date = Column(Date, default=date.today)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Новые поля
@@ -106,7 +106,7 @@ class PersonalReportTestResult(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     performance_measure = Column(Integer, nullable=False)
-    test_date = Column(Date, default=datetime.utcnow().date)
+    test_date = Column(Date, default=date.today)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Новые поля
@@ -118,7 +118,7 @@ class EscalTestResult(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     result_text = Column(Text, nullable=False)
-    test_date = Column(Date, default=datetime.utcnow().date)
+    test_date = Column(Date, default=date.today)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class EscalResults(Base):
@@ -145,7 +145,7 @@ class GenchTestResult(Base):
     heart_rate_before = Column(Integer, nullable=False)
     breath_hold_seconds = Column(Integer, nullable=False)
     heart_rate_after = Column(Integer, nullable=False)
-    test_date = Column(Date, default=datetime.utcnow().date)
+    test_date = Column(Date, default=date.today)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Новые поля
@@ -174,7 +174,7 @@ class ReactionsTestResult(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     visual = Column(String, nullable=True)  # Список пар времени реакции (JSON)
     audio = Column(String, nullable=True)  # Список пар времени реакции (JSON)
-    test_date = Column(Date, default=datetime.utcnow().date)
+    test_date = Column(Date, default=date.today)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     visual_errors = Column(Integer, default=0)
@@ -214,7 +214,7 @@ class EscalDailyResults(Base):
     moodZ = Column(Float, nullable=False)
     ipX = Column(Integer, nullable=False)
     ipZ = Column(Float, nullable=False)
-    test_date = Column(Date, default=datetime.utcnow().date)
+    test_date = Column(Date, default=date.today)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Для связи с пользователем
@@ -228,7 +228,7 @@ class TextAuditionResults(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     read_text_path = Column(String, nullable=False)
     repeat_text_path = Column(String, nullable=False)
-    test_date = Column(Date, default=datetime.utcnow().date)
+    test_date = Column(Date, default=date.today)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     quality_score_read = Column(Float)
