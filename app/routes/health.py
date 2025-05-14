@@ -100,7 +100,7 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
             test = db.query(models.ShtangeTestResult).filter_by(user_id=user.id).order_by(models.ShtangeTestResult.test_date.desc()).first()
 
             with open('logs.txt', 'a') as file:
-                file.write(f"{test}")
+                file.write(f"{test.test_date}")
 
             if test and test.test_date == today:
                 exists = True
