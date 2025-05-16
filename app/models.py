@@ -61,7 +61,7 @@ class RufieTestResult(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Новые поля
-    rufie_index = Column(Integer, nullable=True)
+    rufie_index = Column(Float, nullable=True)
     result_estimation = Column(String, nullable=True)
 
     @classmethod
