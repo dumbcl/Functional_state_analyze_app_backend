@@ -66,7 +66,7 @@ class RufieTestResult(Base):
 
     @classmethod
     def calculate_rufie_index(cls, measurement_first, measurement_second, measurement_third):
-        return 4 * (measurement_first + measurement_second + measurement_third) - 200 / 10
+        return (4 * (measurement_first + measurement_second + measurement_third) - 200) / 10
 
     @classmethod
     def calculate_result_estimation(cls, rufie_index):

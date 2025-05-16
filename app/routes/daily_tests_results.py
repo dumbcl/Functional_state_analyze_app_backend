@@ -6,8 +6,9 @@ from sqlalchemy.orm import Session
 from app import models, auth, database
 from app.database import get_db
 from app.outside_logic.fs_description import generate_fs_description
-from app.outside_logic.fs_score import evaluate_shtange, evaluate_rufie, evaluate_strup, evaluate_gench, evaluate_pulse, evaluate_personal_report, calculate_fs_category, \
-    evaluate_text_audition, evaluate_reactions
+from app.outside_logic.fs_score import evaluate_shtange, evaluate_rufie, evaluate_strup, evaluate_gench, evaluate_pulse, \
+    evaluate_personal_report, calculate_fs_category, \
+    evaluate_text_audition, evaluate_reactions, evaluate_escal_daily
 from app.schemas import DailyTestResult, ShtangeTestResult, ReactionsTestResult, TextAuditionTestResult, \
     GenchTestResult, StrupTestResult, RufieTestResult, PulseMeasurementResult, PersonalReportTestResult
 
@@ -18,7 +19,6 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
     # Получаем все уникальные даты, когда пользователь проходил тесты
     unique_test_dates = db.query(models.ShtangeTestResult.test_date).filter_by(user_id=user.id).distinct().all()
     unique_test_dates += db.query(models.PersonalReportTestResult.test_date).filter_by(user_id=user.id).distinct().all()
-    #unique_test_dates += db.query(models.PulseMeasurement.measured_at).filter_by(user_id=user.id).distinct().all()
     unique_test_dates += db.query(models.RufieTestResult.test_date).filter_by(user_id=user.id).distinct().all()
     unique_test_dates += db.query(models.StrupTestResult.test_date).filter_by(user_id=user.id).distinct().all()
     unique_test_dates += db.query(models.GenchTestResult.test_date).filter_by(user_id=user.id).distinct().all()
@@ -92,6 +92,14 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
         quality_score_read_average = db.query(func.avg(models.TextAuditionResults.quality_score_read)).filter_by(user_id=user.id).scalar()
         quality_score_repeat = text_audition_results[0].quality_score_repeat if text_audition_results else None
         quality_score_repeat_average = db.query(func.avg(models.TextAuditionResults.quality_score_repeat)).filter_by(user_id=user.id).scalar()
+
+        escal_daily_results = db.query(models.EscalDailyResults).filter_by(user_id=user.id, test_date=test_date).all()
+        performance = escal_daily_results[0].performance if escal_daily_results else None
+        fatigue = escal_daily_results[0].fatigue if escal_daily_results else None
+        anxiety = escal_daily_results[0].anxiety if escal_daily_results else None
+        conflict = escal_daily_results[0].conflict if escal_daily_results else None
+        sanX = escal_daily_results[0].sanX if escal_daily_results else None
+        sanZ = escal_daily_results[0].sanZ if escal_daily_results else None
 
         fs_category = calculate_fs_category(
             shtange_result_indicator=shtange_result_indicator,
@@ -172,6 +180,14 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
                 quality_score_repeat=quality_score_repeat,
                 quality_score_read_avg=quality_score_read_average,
                 quality_score_repeat_avg=quality_score_repeat_average,
+            ),
+            escal_daily_test_result= evaluate_escal_daily(
+                performance=performance,
+                fatigue=fatigue,
+                anxiety=anxiety,
+                conflict=conflict,
+                sanX=sanX,
+                sanZ=sanZ,
             ),
             day_description=generate_fs_description(
                 shtange_result_indicator = shtange_result_indicator,

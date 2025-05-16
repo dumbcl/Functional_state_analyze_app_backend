@@ -188,6 +188,9 @@ class ShtangeTestResult(BaseModel):
     shtange_test_result_indicator_average: float
     type: str
 
+    class Config:
+        orm_mode = True
+
 class PulseMeasurementResult(BaseModel):
     pulseAverage: float
     pulseMax: int
@@ -263,6 +266,21 @@ class PersonalReportTestResult(BaseModel):
     class Config:
         orm_mode = True
 
+class EscalDailyTestResult(BaseModel):
+    performance: int
+    performance_type: str
+    fatigue: int
+    fatigue_type: str
+    anxiety: int
+    anxiety_type: str
+    conflict: int
+    conflict_type: str
+    sanX: int
+    sanZ: float
+
+    class Config:
+        orm_mode = True
+
 class DailyTestResult(BaseModel):
     date: str
     shtange_test_result: Optional[ShtangeTestResult] = None
@@ -273,8 +291,23 @@ class DailyTestResult(BaseModel):
     gench_test_result: Optional[GenchTestResult] = None
     reactions_test_result: Optional[ReactionsTestResult] = None
     text_audition_test_result: Optional[TextAuditionTestResult] = None
+    escal_daily_test_result: Optional[EscalDailyTestResult] = None
     day_description: Optional[str]
     day_type: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+class TrendTestResult(BaseModel):
+    shtange_test_result: Optional[List[ShtangeTestResult]] = None
+    personal_report: Optional[List[PersonalReportTestResult]] = None
+    pulse_measurement: Optional[List[PulseMeasurementResult]] = None
+    rufie_test_result: Optional[List[RufieTestResult]] = None
+    strup_test_result: Optional[List[StrupTestResult]] = None
+    gench_test_result: Optional[List[GenchTestResult]] = None
+    reactions_test_result: Optional[List[ReactionsTestResult]] = None
+    text_audition_test_result: Optional[List[TextAuditionTestResult]] = None
+    escal_daily_test_result: Optional[List[EscalDailyTestResult]] = None
 
     class Config:
         orm_mode = True

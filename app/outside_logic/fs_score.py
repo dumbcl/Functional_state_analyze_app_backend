@@ -1,7 +1,7 @@
 from typing import Optional
 
 from app.schemas import ShtangeTestResult, PersonalReportTestResult, PulseMeasurementResult, RufieTestResult, \
-    StrupTestResult, GenchTestResult, ReactionsTestResult, TextAuditionTestResult
+    StrupTestResult, GenchTestResult, ReactionsTestResult, TextAuditionTestResult, EscalDailyTestResult
 
 
 def calculate_fs_category(
@@ -231,3 +231,26 @@ def evaluate_text_audition(pauses_read, pauses_repeat, pauses_read_avg, pauses_r
         quality_read_type=quality_read_status,
         quality_repeat_type=quality_repeat_status
     )
+
+def evaluate_escal_daily(performance, fatigue, anxiety, conflict, sanX, sanZ) -> Optional[EscalDailyTestResult]:
+    if None in (performance, fatigue, anxiety, conflict, sanX, sanZ):
+        return None
+
+    performance_status = "GOOD" if performance > 7 else "BAD" if performance < 4 else "MEDIUM"
+    fatigue_status = "BAD" if fatigue > 7 else "GOOD" if fatigue < 4 else "MEDIUM"
+    anxiety_status = "BAD" if anxiety > 7 else "GOOD" if anxiety < 4 else "MEDIUM"
+    conflict_status = "BAD" if conflict > 7 else "GOOD" if conflict < 4 else "MEDIUM"
+
+    return EscalDailyTestResult(
+        performance=performance,
+        performance_type=performance_status,
+        fatigue=fatigue,
+        fatigue_type=fatigue_status,
+        anxiety=anxiety,
+        anxiety_type=anxiety_status,
+        conflict=conflict,
+        conflict_type=conflict_status,
+        sanX=sanX,
+        sanZ=sanZ,
+    )
+
