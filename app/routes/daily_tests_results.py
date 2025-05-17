@@ -138,32 +138,38 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
                 shtange_result = shtange_result,
                 shtange_result_indicator = shtange_result_indicator,
                 shtange_average = shtange_test_result_indicator_average,
+                date=str(test_date),
             ),
             personal_report = evaluate_personal_report(
                 report_text=personal_report,
                 report_current=personal_report_indicator,
                 report_average=personal_report_indicator_average,
+                date=str(test_date),
             ),
             pulse_measurement = evaluate_pulse(
                 pulse_avg = pulseAverage,
                 pulse_max = pulseMax,
                 pulse_min = pulseMin,
-                pulse_alltime_avg=pulse_alltime_average
+                pulse_alltime_avg=pulse_alltime_average,
+                date=str(test_date),
             ),
             rufie_test_result = evaluate_rufie(
                 rufie_result = rufie_result,
                 rufie_indicator = rufie_result_indicator,
                 rufie_avg= rufie_test_result_indicator_average,
+                date=str(test_date),
             ),
             strup_test_result = evaluate_strup(
                 strup_result = strup_result,
                 strup_avg = strup_test_result_average,
                 strup_result_estimation=strup_result_estimation,
+                date=str(test_date),
             ),
             gench_test_result = evaluate_gench(
                 gench_indicator = gench_result_indicator,
                 gench_result_estimation=gench_result_estimation,
                 gench_avg=gench_test_result_indicator_average,
+                date=str(test_date),
             ),
             reactions_test_result = evaluate_reactions(
                 visual = reactions_visual_errors,
@@ -174,6 +180,7 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
                 reactions_visual_diff_avg=visual_average_diff,
                 reactions_audio_std_avg =audio_quav_diff,
                 reactions_visual_std_avg =visual_quav_diff,
+                date=str(test_date),
             ),
             text_audition_test_result = evaluate_text_audition(
                 pauses_read=pauses_count_read,
@@ -188,6 +195,7 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
                 quality_score_repeat=quality_score_repeat,
                 quality_score_read_avg=quality_score_read_average,
                 quality_score_repeat_avg=quality_score_repeat_average,
+                date=str(test_date),
             ),
             escal_daily_test_result= evaluate_escal_daily(
                 performance=performance,
@@ -196,6 +204,7 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
                 conflict=conflict,
                 sanX=sanX,
                 sanZ=sanZ,
+                date=str(test_date),
             ),
             day_description=generate_fs_description(
                 shtange_result_indicator = shtange_result_indicator,

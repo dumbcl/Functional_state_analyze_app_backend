@@ -187,6 +187,7 @@ class ShtangeTestResult(BaseModel):
     shtange_result_indicator: float
     shtange_test_result_indicator_average: float
     type: str
+    date: str
 
     class Config:
         orm_mode = True
@@ -196,6 +197,7 @@ class PulseMeasurementResult(BaseModel):
     pulseMax: int
     pulseMin: int
     type: str
+    date: str
 
     class Config:
         orm_mode = True
@@ -205,6 +207,7 @@ class RufieTestResult(BaseModel):
     rufie_result_indicator: int
     rufie_test_result_indicator_average: float
     type: str
+    date: str
 
     class Config:
         orm_mode = True
@@ -214,6 +217,7 @@ class StrupTestResult(BaseModel):
     strup_result: int
     strup_test_result_average: float
     type: str
+    date: str
 
     class Config:
         orm_mode = True
@@ -223,6 +227,7 @@ class GenchTestResult(BaseModel):
     gench_result_indicator: float
     gench_test_result_indicator_average: float
     type: str
+    date: str
 
     class Config:
         orm_mode = True
@@ -238,6 +243,7 @@ class ReactionsTestResult(BaseModel):
     reactions_audio_diff_avg: float
     reactions_visual_std_avg: float
     reactions_audio_std_avg: float
+    date: str
 
     class Config:
         orm_mode = True
@@ -257,6 +263,7 @@ class TextAuditionTestResult(BaseModel):
     quality_repeat_average: float
     quality_read_type: str
     quality_repeat_type: str
+    date: str
 
     class Config:
         orm_mode = True
@@ -266,6 +273,7 @@ class PersonalReportTestResult(BaseModel):
     personal_report_current: int
     personal_report_current_average: float
     type: str
+    date: str
 
     class Config:
         orm_mode = True
@@ -281,6 +289,7 @@ class EscalDailyTestResult(BaseModel):
     conflict_type: str
     sanX: int
     sanZ: float
+    date: str
 
     class Config:
         orm_mode = True
@@ -302,6 +311,13 @@ class DailyTestResult(BaseModel):
     class Config:
         orm_mode = True
 
+class DailyEstimationResult(BaseModel):
+    date: str
+    estimation: Optional[int] = None
+
+    class Config:
+        orm_mode = True
+
 class TrendTestResult(BaseModel):
     shtange_test_result: Optional[List[ShtangeTestResult]] = None
     personal_report: Optional[List[PersonalReportTestResult]] = None
@@ -312,6 +328,7 @@ class TrendTestResult(BaseModel):
     reactions_test_result: Optional[List[ReactionsTestResult]] = None
     text_audition_test_result: Optional[List[TextAuditionTestResult]] = None
     escal_daily_test_result: Optional[List[EscalDailyTestResult]] = None
+    estimation_result: Optional[List[DailyEstimationResult]] = None
 
     class Config:
         orm_mode = True
