@@ -18,13 +18,20 @@ def create_reactions_test(
     visual_errors = models.ReactionsTestResult.calculate_errors(data.audio)
     audio_errors = models.ReactionsTestResult.calculate_errors(data.visual)
 
+    audio_average_diff, audio_quav_diff = models.ReactionsTestResult.mean_std_difference(data.audio)
+    visual_average_diff, visual_quav_diff = models.ReactionsTestResult.mean_std_difference(data.visual)
+
     # Создаём запись в базе данных
     test = models.ReactionsTestResult(
         user_id=user.id,
         visual=json.dumps(data.visual),
         audio=json.dumps(data.audio),
         visual_errors=visual_errors,
-        audio_errors=audio_errors
+        audio_errors=audio_errors,
+        visual_average_diff=visual_average_diff,
+        audio_average_diff = audio_average_diff,
+        visual_quav_diff = visual_quav_diff,
+        audio_quav_diff = audio_quav_diff,
     )
 
     db.add(test)
