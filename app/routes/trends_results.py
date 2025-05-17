@@ -24,6 +24,7 @@ def get_trend_test_results(
             shtange_result=obj.result_estimation,
             shtange_result_indicator=obj.reaction_indicator,
             shtange_average=db.query(func.avg(models.ShtangeTestResult.reaction_indicator)).filter_by(user_id=user.id).scalar(),
+            date=str(obj.test_date)
         )
         for obj in shtange_objs
     ] or None
@@ -37,6 +38,7 @@ def get_trend_test_results(
             report_text=obj.days_comparison,
             report_current=obj.performance_measure,
             report_average=avg_perf,
+            date=str(obj.test_date)
         )
         for obj in personal_report_objs
     ] or None
