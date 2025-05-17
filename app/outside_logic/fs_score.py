@@ -193,7 +193,9 @@ def evaluate_gench(gench_result_estimation, gench_indicator, gench_avg) -> Optio
         type=status
     )
 
-def evaluate_reactions(visual, audio, visual_avg, audio_avg) -> Optional[ReactionsTestResult]:
+def evaluate_reactions(visual, audio, visual_avg, audio_avg,
+    reactions_visual_diff_avg,reactions_audio_diff_avg, reactions_audio_std_avg,
+                       reactions_visual_std_avg) -> Optional[ReactionsTestResult]:
     if None in (visual, audio, visual_avg, audio_avg):
         return None
     visual_status = 'BAD' if float(visual) > float(visual_avg) * 1.15 else 'GOOD'
@@ -204,7 +206,11 @@ def evaluate_reactions(visual, audio, visual_avg, audio_avg) -> Optional[Reactio
         reactions_visual_errors_average=visual_avg,
         reactions_audio_errors_average=audio_avg,
         reactions_visual_errors_type=visual_status,
-        reactions_audio_errors_type=audio_status
+        reactions_audio_errors_type=audio_status,
+        reactions_visual_diff_avg=reactions_visual_diff_avg,
+        reactions_audio_diff_avg=reactions_audio_diff_avg,
+        reactions_audio_std_avg=reactions_audio_std_avg,
+        reactions_visual_std_avg=reactions_visual_std_avg,
     )
 
 def evaluate_text_audition(pauses_read, pauses_repeat, pauses_read_avg, pauses_repeat_avg,

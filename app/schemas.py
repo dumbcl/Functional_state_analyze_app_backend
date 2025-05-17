@@ -234,6 +234,10 @@ class ReactionsTestResult(BaseModel):
     reactions_audio_errors_average: float
     reactions_visual_errors_type: str
     reactions_audio_errors_type: str
+    reactions_visual_diff_avg: float
+    reactions_audio_diff_avg: float
+    reactions_visual_std_avg: float
+    reactions_audio_std_avg: float
 
     class Config:
         orm_mode = True

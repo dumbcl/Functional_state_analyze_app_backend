@@ -1,3 +1,4 @@
+import math
 from typing import List, Tuple
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime, Date, Boolean, Text, UniqueConstraint
@@ -179,6 +180,10 @@ class ReactionsTestResult(Base):
 
     visual_errors = Column(Integer, default=0)
     audio_errors = Column(Integer, default=0)
+    visual_average_diff = Column(Float, default=0.0)
+    audio_average_diff = Column(Float, default=0.0)
+    visual_quav_diff = Column(Float, default=0.0)
+    audio_quav_diff = Column(Float, default=0.0)
 
     # Добавляем связь с User
     user = relationship("User", back_populates="reactions_test_results")
@@ -190,6 +195,28 @@ class ReactionsTestResult(Base):
             if abs(pair[0] - pair[1]) > 1000:
                 errors += 1
         return errors
+
+    @classmethod
+    def calculate_average_diff(cls, reactions: List[Tuple[int, int]]) -> int:
+        errors = 0
+        for pair in reactions:
+            if abs(pair[0] - pair[1]) > 1000:
+                errors += 1
+        return errors
+
+    @classmethod
+    def mean_std_difference(cls, pairs: List[Tuple[int, int]]) -> Tuple[float, float]:
+        if not pairs:
+            return (0.0, 0.0)
+
+        differences = [abs(a - b) for a, b in pairs]
+        n = len(differences)
+        mean = sum(differences) / n
+
+        variance = sum((x - mean) ** 2 for x in differences) / (n - 1 if n > 1 else 1)
+        std = math.sqrt(variance)
+
+        return mean, std
 
 
 class EscalDailyResults(Base):

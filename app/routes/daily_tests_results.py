@@ -77,6 +77,10 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
         reactions_audio_errors = reactions_results[0].audio_errors if reactions_results else None
         reactions_visual_errors_average = db.query(func.avg(models.ReactionsTestResult.visual_errors)).filter_by(user_id=user.id).scalar()
         reactions_audio_errors_average = db.query(func.avg(models.ReactionsTestResult.audio_errors)).filter_by(user_id=user.id).scalar()
+        audio_average_diff = reactions_results[0].audio_average_diff if reactions_results else None
+        visual_average_diff = reactions_results[0].visual_average_diff if reactions_results else None
+        audio_quav_diff = reactions_results[0].audio_quav_diff if reactions_results else None
+        visual_quav_diff = reactions_results[0].visual_quav_diff if reactions_results else None
 
         # TextAuditionResults для этого дня
         text_audition_results = db.query(models.TextAuditionResults).filter_by(user_id=user.id, test_date=test_date).all()
@@ -166,6 +170,10 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
                 audio = reactions_audio_errors,
                 visual_avg = reactions_visual_errors_average,
                 audio_avg=reactions_audio_errors_average,
+                reactions_audio_diff_avg=audio_average_diff,
+                reactions_visual_diff_avg=visual_average_diff,
+                reactions_audio_std_avg =audio_quav_diff,
+                reactions_visual_std_avg =visual_quav_diff,
             ),
             text_audition_test_result = evaluate_text_audition(
                 pauses_read=pauses_count_read,
