@@ -1,7 +1,7 @@
 import json
 from sqlalchemy.orm import Session
-from app.models import RufieTestResult, ReactionsTestResult
-from app.database import SessionLocal
+from models import RufieTestResult, ReactionsTestResult
+from database import SessionLocal
 
 def add_reaction_avg():
     db: Session = SessionLocal()

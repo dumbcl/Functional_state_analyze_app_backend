@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.models import RufieTestResult
-from app.database import SessionLocal
+from models import RufieTestResult
+from database import SessionLocal
 
 def update_rufie_indexes():
     db: Session = SessionLocal()
