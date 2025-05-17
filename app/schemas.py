@@ -204,7 +204,7 @@ class PulseMeasurementResult(BaseModel):
 
 class RufieTestResult(BaseModel):
     rufie_result: str
-    rufie_result_indicator: int
+    rufie_result_indicator: float
     rufie_test_result_indicator_average: float
     type: str
     date: str
