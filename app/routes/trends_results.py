@@ -163,8 +163,8 @@ def get_trend_test_results(
             fatigue=obj.fatigue,
             anxiety=obj.anxiety,
             conflict=obj.conflict,
-            sanX=obj.sanX,
-            sanZ=obj.sanZ,
+            sanX=obj.ipX,
+            sanZ=obj.ipZ,
             date=str(obj.test_date),
         )
         for obj in escal_objs
