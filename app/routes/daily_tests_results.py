@@ -102,8 +102,8 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
         fatigue = escal_daily_results[0].fatigue if escal_daily_results else None
         anxiety = escal_daily_results[0].anxiety if escal_daily_results else None
         conflict = escal_daily_results[0].conflict if escal_daily_results else None
-        sanX = escal_daily_results[0].sanX if escal_daily_results else None
-        sanZ = escal_daily_results[0].sanZ if escal_daily_results else None
+        sanX = escal_daily_results[0].ipX if escal_daily_results else None
+        sanZ = escal_daily_results[0].ipZ if escal_daily_results else None
 
         fs_category = calculate_fs_category(
             shtange_result_indicator=shtange_result_indicator,
