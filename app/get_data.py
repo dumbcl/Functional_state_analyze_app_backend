@@ -3,8 +3,8 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import create_engine
 from datetime import date
 
-from app.database import SessionLocal
-from app.models import ShtangeTestResult, RufieTestResult, StrupTestResult, GenchTestResult, ReactionsTestResult, \
+from database import SessionLocal
+from models import ShtangeTestResult, RufieTestResult, StrupTestResult, GenchTestResult, ReactionsTestResult, \
     TextAuditionResults, PersonalReportTestResult
 
 
