@@ -33,13 +33,12 @@ class ShtangeTestResult(Base):
     test_date = Column(Date, default=date.today)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Новые поля
-    result_estimation = Column(String, nullable=True)  # BAD, MEDIUM, GOOD
-    reaction_indicator = Column(Float, nullable=True)  # heart_rate_after / heart_rate_before
+    result_estimation = Column(String, nullable=True)
+    reaction_indicator = Column(Float, nullable=True)
 
     @classmethod
     def calculate_reaction_indicator(cls, heart_rate_after, heart_rate_before):
-        if heart_rate_before == 0:  # Предотвращаем деление на 0
+        if heart_rate_before == 0:
             return None
         return heart_rate_after / heart_rate_before
 
@@ -90,8 +89,6 @@ class StrupTestResult(Base):
     result = Column(Integer, nullable=False)
     test_date = Column(Date, default=date.today)
     created_at = Column(DateTime, default=datetime.utcnow)
-
-    # Новые поля
     result_estimation = Column(String, nullable=True)
 
     @classmethod

@@ -18,3 +18,4 @@ pydub
 nltk
 yandex-speechkit
 scikit-learn
+pandas
