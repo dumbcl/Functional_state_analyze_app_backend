@@ -27,8 +27,10 @@ def get_trend_test_results(
             date=str(obj.test_date)
         )
         for obj in shtange_objs
-    ] or None
+    ]
     shtange_test_result = [r for r in shtange_test_result if r is not None] or None
+    if not shtange_test_result:
+        shtange_test_result = None
 
     # PersonalReport
     personal_report_objs = db.query(models.PersonalReportTestResult).filter_by(user_id=user.id).order_by(models.PersonalReportTestResult.test_date).all()
@@ -42,8 +44,10 @@ def get_trend_test_results(
             date=str(obj.test_date)
         )
         for obj in personal_report_objs
-    ] or None
+    ]
     personal_report = [r for r in personal_report if r is not None] or None
+    if not personal_report:
+        personal_report = None
 
     # PulseMeasurement
     pulse_objs = db.query(models.PulseMeasurement).filter_by(user_id=user.id).order_by(models.PulseMeasurement.created_at).all()
@@ -58,8 +62,10 @@ def get_trend_test_results(
             date=str(obj.created_at),
         )
         for obj in pulse_objs
-    ] or None
+    ]
     pulse_measurement = [r for r in pulse_measurement if r is not None] or None
+    if not pulse_measurement:
+        pulse_measurement = None
 
     # Rufie
     rufie_objs = db.query(models.RufieTestResult).filter_by(user_id=user.id).order_by(models.RufieTestResult.test_date).all()
@@ -73,8 +79,10 @@ def get_trend_test_results(
             date=str(obj.test_date)
         )
         for obj in rufie_objs
-    ] or None
+    ]
     rufie_test_result = [r for r in rufie_test_result if r is not None] or None
+    if not rufie_test_result:
+        rufie_test_result = None
 
     # Strup
     strup_objs = db.query(models.StrupTestResult).filter_by(user_id=user.id).order_by(models.StrupTestResult.test_date).all()
@@ -88,8 +96,10 @@ def get_trend_test_results(
             date=str(obj.test_date)
         )
         for obj in strup_objs
-    ] or None
+    ]
     strup_test_result= [r for r in strup_test_result if r is not None] or None
+    if not strup_test_result:
+        strup_test_result = None
 
     # Gench
     gench_objs = db.query(models.GenchTestResult).filter_by(user_id=user.id).order_by(models.GenchTestResult.test_date).all()
@@ -103,8 +113,10 @@ def get_trend_test_results(
             date=str(obj.test_date)
         )
         for obj in gench_objs
-    ] or None
+    ]
     gench_test_result = [r for r in gench_test_result if r is not None] or None
+    if not gench_test_result:
+        gench_test_result = None
 
     # Reactions
     reactions_objs = db.query(models.ReactionsTestResult).filter_by(user_id=user.id).order_by(models.ReactionsTestResult.test_date).all()
@@ -125,8 +137,10 @@ def get_trend_test_results(
             date=str(obj.test_date)
         )
         for obj in reactions_objs
-    ] or None
+    ]
     reactions_test_result = [r for r in reactions_test_result if r is not None] or None
+    if not reactions_test_result:
+        reactions_test_result = None
 
     # TextAudition
     text_objs = db.query(models.TextAuditionResults).filter_by(user_id=user.id).order_by(models.TextAuditionResults.test_date).all()
@@ -160,8 +174,10 @@ def get_trend_test_results(
             date=str(obj.test_date),
         )
         for obj in text_objs
-    ] or None
+    ]
     text_audition_test_result = [r for r in text_audition_test_result if r is not None] or None
+    if not text_audition_test_result:
+        text_audition_test_result = None
 
     # EscalDaily
     escal_objs = db.query(models.EscalDailyResults).filter_by(user_id=user.id).order_by(models.EscalDailyResults.test_date).all()
@@ -176,8 +192,10 @@ def get_trend_test_results(
             date=str(obj.test_date),
         )
         for obj in escal_objs
-    ] or None
+    ]
     escal_daily_test_result = [r for r in escal_daily_test_result if r is not None] or None
+    if not escal_daily_test_result:
+        escal_daily_test_result = None
 
     # Вернуть агрегированный результат
     return TrendTestResult(
