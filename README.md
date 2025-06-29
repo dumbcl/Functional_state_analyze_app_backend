@@ -16,5 +16,7 @@
 ➡️ [Мобильная часть](https://github.com/dumbcl/Functional_state_analyze_app_mobile/tree/android-app)
 
 Ссылка на apk (исполняемый файл) приложения [ссылка](https://disk.yandex.ru/d/qWbumgSliN-MNQ)
+
 Ссылка на CV [ссылка](https://disk.yandex.ru/i/BL9uy7wZVvb5nA)
+
 Ссылка на мотивационный ролик [ссылка](https://disk.yandex.ru/i/iseqL3eEPMOz3Q)
