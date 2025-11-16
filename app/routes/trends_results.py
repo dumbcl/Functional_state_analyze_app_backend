@@ -8,7 +8,7 @@ from app.outside_logic.fs_score import evaluate_shtange, evaluate_personal_repor
     evaluate_strup, evaluate_gench, evaluate_reactions, evaluate_text_audition, evaluate_escal_daily, calculate_fs_score
 from app.schemas import TrendTestResult, ShtangeTestResult, PersonalReportTestResult, PulseMeasurementResult, \
     RufieTestResult, StrupTestResult, GenchTestResult, ReactionsTestResult, TextAuditionTestResult, \
-    EscalDailyTestResult, DailyEstimationResult
+    EscalDailyTestResult, DailyEstimationResult, LastGenchResult, LastShtangeResult, LastReactionsResult, GenchDailyResults, ShtangeDailyResults, ReactionsAvgDailyResult
 
 router = APIRouter()
 
@@ -303,3 +303,208 @@ def get_fs_categories_by_date(db: Session, user: models.User) -> List[DailyEstim
         ))
 
     return fs_score_list
+
+@router.get("/last-gench-result", response_model=LastGenchResult)
+def get_last_gench_result(
+    db: Session = Depends(get_db),
+    user: models.User = Depends(auth.get_current_user),
+):
+    # Все тесты пользователя (по дате по возрастанию)
+    gench_qs = (
+        db.query(models.GenchTestResult)
+        .filter(models.GenchTestResult.user_id == user.id)
+        .order_by(models.GenchTestResult.test_date.asc(), models.GenchTestResult.created_at.asc())
+        .all()
+    )
+
+    if not gench_qs:
+        # Нет ни одного теста — возвращаем "пустой" объект
+        return LastGenchResult(
+            heartRateBefore=None,
+            heartRateAfter=None,
+            genchIndicator=None,
+            genchIndicatorAvg=None,
+            genchIndicators=[],
+            estimate=None,
+            estimates=[],
+        )
+
+    last_obj = gench_qs[-1]
+
+    # Список индикаторов и среднее
+    indicators = [
+        obj.reaction_indicator
+        for obj in gench_qs
+        if obj.reaction_indicator is not None
+    ]
+    gench_indicator_avg = (
+        sum(indicators) / len(indicators) if indicators else None
+    )
+
+    # Список всех индикаторов по датам
+    gench_indicators = [
+        GenchDailyResults(
+            indicator=obj.reaction_indicator,
+            date=str(obj.test_date),
+        )
+        for obj in gench_qs
+        if obj.reaction_indicator is not None
+    ]
+
+    # Все текстовые оценки
+    estimates = [
+        obj.result_estimation
+        for obj in gench_qs
+        if obj.result_estimation is not None
+    ]
+
+    return LastGenchResult(
+        heartRateBefore=last_obj.heart_rate_before,
+        heartRateAfter=last_obj.heart_rate_after,
+        genchIndicator=last_obj.reaction_indicator,
+        genchIndicatorAvg=gench_indicator_avg,
+        genchIndicators=gench_indicators,
+        estimate=last_obj.result_estimation,
+        estimates=estimates,
+    )
+
+@router.get("/last-shtange-result", response_model=LastShtangeResult)
+def get_last_shtange_result(
+    db: Session = Depends(get_db),
+    user: models.User = Depends(auth.get_current_user),
+):
+    shtange_qs = (
+        db.query(models.ShtangeTestResult)
+        .filter(models.ShtangeTestResult.user_id == user.id)
+        .order_by(models.ShtangeTestResult.test_date.asc(), models.ShtangeTestResult.created_at.asc())
+        .all()
+    )
+
+    if not shtange_qs:
+        return LastShtangeResult(
+            heartRateBefore=None,
+            heartRateAfter=None,
+            shtangeIndicator=None,
+            shtangeIndicatorAvg=None,
+            shtangeIndicators=[],
+            estimate=None,
+            estimates=[],
+        )
+
+    last_obj = shtange_qs[-1]
+
+    indicators = [
+        obj.reaction_indicator
+        for obj in shtange_qs
+        if obj.reaction_indicator is not None
+    ]
+    shtange_indicator_avg = (
+        sum(indicators) / len(indicators) if indicators else None
+    )
+
+    shtange_indicators = [
+        ShtangeDailyResults(
+            indicator=obj.reaction_indicator,
+            date=str(obj.test_date),
+        )
+        for obj in shtange_qs
+        if obj.reaction_indicator is not None
+    ]
+
+    estimates = [
+        obj.result_estimation
+        for obj in shtange_qs
+        if obj.result_estimation is not None
+    ]
+
+    return LastShtangeResult(
+        heartRateBefore=last_obj.heart_rate_before,
+        heartRateAfter=last_obj.heart_rate_after,
+        shtangeIndicator=last_obj.reaction_indicator,
+        shtangeIndicatorAvg=shtange_indicator_avg,
+        shtangeIndicators=shtange_indicators,
+        estimate=last_obj.result_estimation,
+        estimates=estimates,
+    )
+
+@router.get("/last-reactions-result", response_model=LastReactionsResult)
+def get_last_reactions_result(
+    db: Session = Depends(get_db),
+    user: models.User = Depends(auth.get_current_user),
+):
+    reactions_qs = (
+        db.query(models.ReactionsTestResult)
+        .filter(models.ReactionsTestResult.user_id == user.id)
+        .order_by(models.ReactionsTestResult.test_date.asc(), models.ReactionsTestResult.created_at.asc())
+        .all()
+    )
+
+    if not reactions_qs:
+        return LastReactionsResult(
+            audioResultMistakes=None,
+            videoResultMistakes=None,
+            reactionResultAudioAvgResult=None,
+            reactionResultAudioAvgAlltimeResult=None,
+            reactionResultAudioStdResult=None,
+            reactionResultVisualAvgResult=None,
+            reactionResultVisualAvgAlltimeResult=None,
+            reactionResultVisualStdResult=None,
+            reactionsAudio=[],
+            reactionsVisual=[],
+        )
+
+    last_obj = reactions_qs[-1]
+
+    # Средние по всем тестам
+    audio_avgs = [
+        obj.audio_average_diff
+        for obj in reactions_qs
+        if obj.audio_average_diff is not None
+    ]
+    visual_avgs = [
+        obj.visual_average_diff
+        for obj in reactions_qs
+        if obj.visual_average_diff is not None
+    ]
+
+    audio_avg_alltime = (
+        sum(audio_avgs) / len(audio_avgs) if audio_avgs else None
+    )
+    visual_avg_alltime = (
+        sum(visual_avgs) / len(visual_avgs) if visual_avgs else None
+    )
+
+    # Списки по дням
+    reactions_audio = [
+        ReactionsAvgDailyResult(
+            indicator=obj.audio_average_diff,
+            date=str(obj.test_date),
+        )
+        for obj in reactions_qs
+        if obj.audio_average_diff is not None
+    ]
+
+    reactions_visual = [
+        ReactionsAvgDailyResult(
+            indicator=obj.visual_average_diff,
+            date=str(obj.test_date),
+        )
+        for obj in reactions_qs
+        if obj.visual_average_diff is not None
+    ]
+
+    return LastReactionsResult(
+        audioResultMistakes=last_obj.audio_errors,
+        videoResultMistakes=last_obj.visual_errors,
+
+        reactionResultAudioAvgResult=last_obj.audio_average_diff,
+        reactionResultAudioAvgAlltimeResult=audio_avg_alltime,
+        reactionResultAudioStdResult=last_obj.audio_quav_diff,
+
+        reactionResultVisualAvgResult=last_obj.visual_average_diff,
+        reactionResultVisualAvgAlltimeResult=visual_avg_alltime,
+        reactionResultVisualStdResult=last_obj.visual_quav_diff,
+
+        reactionsAudio=reactions_audio,
+        reactionsVisual=reactions_visual,
+    )

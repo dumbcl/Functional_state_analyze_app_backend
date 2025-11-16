@@ -333,3 +333,71 @@ class TrendTestResult(BaseModel):
     class Config:
         orm_mode = True
 
+
+class GenchDailyResults(BaseModel):
+    indicator: float
+    date: str
+
+    class Config:
+        orm_mode = True
+
+
+class ShtangeDailyResults(BaseModel):
+    indicator: float
+    date: str
+
+    class Config:
+        orm_mode = True
+
+
+class ReactionsAvgDailyResult(BaseModel):
+    indicator: float
+    date: str
+
+    class Config:
+        orm_mode = True
+
+
+class LastGenchResult(BaseModel):
+    heartRateBefore: Optional[int] = None
+    heartRateAfter: Optional[int] = None
+    genchIndicator: Optional[float] = None
+    genchIndicatorAvg: Optional[float] = None
+    genchIndicators: List[GenchDailyResults] = []
+    estimate: Optional[str] = None
+    estimates: List[str] = []
+
+    class Config:
+        orm_mode = True
+
+
+class LastShtangeResult(BaseModel):
+    heartRateBefore: Optional[int] = None
+    heartRateAfter: Optional[int] = None
+    shtangeIndicator: Optional[float] = None
+    shtangeIndicatorAvg: Optional[float] = None
+    shtangeIndicators: List[ShtangeDailyResults] = []
+    estimate: Optional[str] = None
+    estimates: List[str] = []
+
+    class Config:
+        orm_mode = True
+
+
+class LastReactionsResult(BaseModel):
+    audioResultMistakes: Optional[int] = None
+    videoResultMistakes: Optional[int] = None
+
+    reactionResultAudioAvgResult: Optional[float] = None
+    reactionResultAudioAvgAlltimeResult: Optional[float] = None
+    reactionResultAudioStdResult: Optional[float] = None
+
+    reactionResultVisualAvgResult: Optional[float] = None
+    reactionResultVisualAvgAlltimeResult: Optional[float] = None
+    reactionResultVisualStdResult: Optional[float] = None
+
+    reactionsAudio: List[ReactionsAvgDailyResult] = []
+    reactionsVisual: List[ReactionsAvgDailyResult] = []
+
+    class Config:
+        orm_mode = True
