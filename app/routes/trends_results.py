@@ -306,6 +306,7 @@ def get_fs_categories_by_date(db: Session, user: models.User) -> List[DailyEstim
 
 @router.get("/last-gench-result", response_model=LastGenchResult)
 def get_last_gench_result(
+    date: str,
     db: Session = Depends(get_db),
     user: models.User = Depends(auth.get_current_user),
 ):
@@ -429,6 +430,7 @@ def get_last_shtange_result(
 
 @router.get("/last-reactions-result", response_model=LastReactionsResult)
 def get_last_reactions_result(
+    date: str,
     db: Session = Depends(get_db),
     user: models.User = Depends(auth.get_current_user),
 ):
