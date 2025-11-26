@@ -4,7 +4,7 @@ from typing import List, Tuple
 from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime, Date, Boolean, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime, date
-from app.database import Base
+from database import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -44,7 +44,7 @@ class ShtangeTestResult(Base):
 
     @classmethod
     def calculate_result_estimation(cls, breath_hold_seconds):
-        if breath_hold_seconds < 39:
+        if breath_hold_seconds < 25:
             return "BAD"
         elif breath_hold_seconds > 50:
             return "GOOD"
