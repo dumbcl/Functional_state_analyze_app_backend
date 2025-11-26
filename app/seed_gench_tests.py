@@ -1,7 +1,7 @@
 from datetime import date, datetime, timedelta
 
-from database import SessionLocal
-import models
+from app.database import SessionLocal
+from app import models
 
 # Задай здесь тестового пользователя
 TEST_USER_EMAIL = "Weakostya"
