@@ -103,7 +103,7 @@ def seed_reactions_tests():
                 audio=json.dumps(audio_pairs),
                 visual_errors=visual_errors,
                 audio_errors=audio_errors,
-                visual_average_diff=audio_average_diff,
+                visual_average_diff=visual_average_diff,
                 audio_average_diff=audio_average_diff,
                 visual_quav_diff=visual_quav_diff,
                 audio_quav_diff=audio_quav_diff,
