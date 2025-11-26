@@ -158,7 +158,7 @@ class GenchTestResult(Base):
 
     @classmethod
     def calculate_result_estimation(cls, breath_hold_seconds):
-        if breath_hold_seconds < 34:
+        if breath_hold_seconds < 24:
             return "BAD"
         elif breath_hold_seconds > 40:
             return "GOOD"
