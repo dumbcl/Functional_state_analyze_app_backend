@@ -102,5 +102,4 @@ def seed_gench_tests():
         db.close()
 
 
-if name == "__main__":
-    seed_gench_tests()
+seed_gench_tests()
