@@ -238,3 +238,72 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
         daily_results.append(result)
 
     return daily_results
+
+@router.get("/daily-test-results-light", response_model=List[DailyTestResult])
+def get_daily_test_results(db: Session = Depends(get_db), user: models.User = Depends(auth.get_current_user)):
+    # Получаем все уникальные даты, когда пользователь проходил тесты
+    unique_test_dates = db.query(models.ShtangeTestResult.test_date).filter_by(user_id=user.id).distinct().all()
+    unique_test_dates += db.query(models.GenchTestResult.test_date).filter_by(user_id=user.id).distinct().all()
+    unique_test_dates += db.query(models.ReactionsTestResult.test_date).filter_by(user_id=user.id).distinct().all()
+
+    # Убираем дублированные даты
+    unique_test_dates = list(set([date[0] for date in unique_test_dates]))
+
+    daily_results = []
+
+    for test_date in sorted(unique_test_dates, reverse=True):
+        # Запрашиваем результаты из разных таблиц для конкретной даты
+        shtange_results = db.query(models.ShtangeTestResult).filter_by(user_id=user.id, test_date=test_date).all()
+        shtange_result = shtange_results[0].result_estimation if shtange_results else None
+        shtange_result_indicator = shtange_results[0].reaction_indicator if shtange_results else None
+        shtange_test_result_indicator_average = db.query(func.avg(models.ShtangeTestResult.reaction_indicator)).filter_by(user_id=user.id).scalar()
+
+        # GenchTestResult для этого дня
+        gench_results = db.query(models.GenchTestResult).filter_by(user_id=user.id, test_date=test_date).all()
+        gench_result_estimation = gench_results[0].result_estimation if gench_results else None
+        gench_result_indicator = gench_results[0].reaction_indicator if gench_results else None
+       #check
+        gench_test_result_indicator_average = db.query(func.avg(models.GenchTestResult.reaction_indicator)).filter_by(user_id=user.id).scalar()
+
+        # ReactionsTestResult для этого дня
+        reactions_results = db.query(models.ReactionsTestResult).filter_by(user_id=user.id, test_date=test_date).all()
+        reactions_visual_errors = reactions_results[0].visual_errors if reactions_results else None
+        reactions_audio_errors = reactions_results[0].audio_errors if reactions_results else None
+        reactions_visual_errors_average = db.query(func.avg(models.ReactionsTestResult.visual_errors)).filter_by(user_id=user.id).scalar()
+        reactions_audio_errors_average = db.query(func.avg(models.ReactionsTestResult.audio_errors)).filter_by(user_id=user.id).scalar()
+        audio_average_diff = reactions_results[0].audio_average_diff if reactions_results else None
+        visual_average_diff = reactions_results[0].visual_average_diff if reactions_results else None
+        audio_quav_diff = reactions_results[0].audio_quav_diff if reactions_results else None
+        visual_quav_diff = reactions_results[0].visual_quav_diff if reactions_results else None
+
+        # Собираем результаты в одном объекте
+        result = DailyTestResult(
+            date=str(test_date),
+            shtange_test_result = evaluate_shtange(
+                shtange_result = shtange_result,
+                shtange_result_indicator = shtange_result_indicator,
+                shtange_average = shtange_test_result_indicator_average,
+                date=str(test_date),
+            ),
+            gench_test_result = evaluate_gench(
+                gench_indicator = gench_result_indicator,
+                gench_result_estimation=gench_result_estimation,
+                gench_avg=gench_test_result_indicator_average,
+                date=str(test_date),
+            ),
+            reactions_test_result = evaluate_reactions(
+                visual = reactions_visual_errors,
+                audio = reactions_audio_errors,
+                visual_avg = reactions_visual_errors_average,
+                audio_avg=reactions_audio_errors_average,
+                reactions_audio_diff_avg=audio_average_diff,
+                reactions_visual_diff_avg=visual_average_diff,
+                reactions_audio_std_avg =audio_quav_diff,
+                reactions_visual_std_avg =visual_quav_diff,
+                date=str(test_date),
+            )
+        )
+
+        daily_results.append(result)
+
+    return daily_results

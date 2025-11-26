@@ -15,8 +15,8 @@ def create_reactions_test(
 ):
 
     # Высчитываем количество ошибок
-    visual_errors = models.ReactionsTestResult.calculate_errors(data.audio)
-    audio_errors = models.ReactionsTestResult.calculate_errors(data.visual)
+    visual_errors = data.visual_mistakes_count
+    audio_errors = data.audio_mistakes_count
 
     audio_average_diff, audio_quav_diff = models.ReactionsTestResult.mean_std_difference(data.audio)
     visual_average_diff, visual_quav_diff = models.ReactionsTestResult.mean_std_difference(data.visual)

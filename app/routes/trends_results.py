@@ -342,6 +342,15 @@ def get_last_gench_result(
         sum(indicators) / len(indicators) if indicators else None
     )
 
+    breath_holds = [
+        obj.breath_hold_seconds
+        for obj in gench_qs
+        if obj.breath_hold_seconds is not None
+    ]
+    breath_hold_seconds_avg = (
+        sum(breath_holds) / len(breath_holds) if breath_holds else None
+    )
+
     # Список всех индикаторов по датам
     gench_indicators = [
         GenchDailyResults(
@@ -367,6 +376,8 @@ def get_last_gench_result(
         genchIndicators=gench_indicators,
         estimate=last_obj.result_estimation,
         estimates=estimates,
+        breathHoldSeconds=last_obj.breath_hold_seconds,
+        breathHoldSecondsAvg=breath_hold_seconds_avg
     )
 
 @router.get("/last-shtange-result", response_model=LastShtangeResult)
@@ -403,6 +414,15 @@ def get_last_shtange_result(
         sum(indicators) / len(indicators) if indicators else None
     )
 
+    breath_holds = [
+        obj.breath_hold_seconds
+        for obj in shtange_qs
+        if obj.breath_hold_seconds is not None
+    ]
+    breath_hold_seconds_avg = (
+        sum(breath_holds) / len(breath_holds) if breath_holds else None
+    )
+
     shtange_indicators = [
         ShtangeDailyResults(
             indicator=obj.reaction_indicator,
@@ -426,6 +446,8 @@ def get_last_shtange_result(
         shtangeIndicators=shtange_indicators,
         estimate=last_obj.result_estimation,
         estimates=estimates,
+        breathHoldSeconds=last_obj.breath_hold_seconds,
+        breathHoldSecondsAvg=breath_hold_seconds_avg
     )
 
 @router.get("/last-reactions-result", response_model=LastReactionsResult)

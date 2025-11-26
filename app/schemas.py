@@ -59,6 +59,8 @@ class EscalResultsResponse(EscalResultsCreate):
 class ReactionsTestResultsCreate(BaseModel):
     visual: List[Tuple[int, int]]  # Список пар для visual
     audio: List[Tuple[int, int]]   # Список пар для audio
+    visual_mistakes_count: int
+    audio_mistakes_count: int
 
 class ReactionsTestResultsResponse(ReactionsTestResultsCreate):
     id: int
@@ -366,6 +368,8 @@ class LastGenchResult(BaseModel):
     genchIndicators: List[GenchDailyResults] = []
     estimate: Optional[str] = None
     estimates: List[str] = []
+    breathHoldSeconds: Optional[int] = None
+    breathHoldSecondsAvg: Optional[float] = None
 
     class Config:
         orm_mode = True
@@ -379,6 +383,8 @@ class LastShtangeResult(BaseModel):
     shtangeIndicators: List[ShtangeDailyResults] = []
     estimate: Optional[str] = None
     estimates: List[str] = []
+    breathHoldSeconds: Optional[int] = None
+    breathHoldSecondsAvg: Optional[float] = None
 
     class Config:
         orm_mode = True
