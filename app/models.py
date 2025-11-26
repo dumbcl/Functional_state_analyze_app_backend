@@ -4,7 +4,7 @@ from typing import List, Tuple
 from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime, Date, Boolean, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime, date
-from database import Base
+from app.gdatabase import Base
 
 class User(Base):
     __tablename__ = "users"
