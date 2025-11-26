@@ -307,8 +307,8 @@ class DailyTestResult(BaseModel):
     reactions_test_result: Optional[ReactionsTestResult] = None
     text_audition_test_result: Optional[TextAuditionTestResult] = None
     escal_daily_test_result: Optional[EscalDailyTestResult] = None
-    day_description: Optional[str]
-    day_type: Optional[str]
+    day_description: Optional[str] = None
+    day_type: Optional[str] = None
 
     class Config:
         orm_mode = True
