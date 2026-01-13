@@ -111,7 +111,7 @@ def calculate_fs_category(
 
 # Отдельные функции для оценки каждого показателя
 
-def evaluate_shtange(shtange_result, shtange_result_indicator, shtange_average, date) -> Optional[ShtangeTestResult]:
+def evaluate_shtange(shtange_result, shtange_result_indicator, shtange_average, date, test_id) -> Optional[ShtangeTestResult]:
     if None in (shtange_result, shtange_result_indicator, shtange_average):
         return None
     status = 'BAD' if shtange_result_indicator > 1.2 or shtange_result_indicator > shtange_average * 1.15 else 'GOOD'
@@ -121,6 +121,7 @@ def evaluate_shtange(shtange_result, shtange_result_indicator, shtange_average, 
         shtange_test_result_indicator_average=shtange_average,
         type=status,
         date=date,
+        test_id=test_id,
     )
 
 def evaluate_personal_report(report_text, report_current, report_average, date) -> Optional[PersonalReportTestResult]:
@@ -153,7 +154,7 @@ def evaluate_pulse(pulse_avg, pulse_max, pulse_min, pulse_alltime_avg, date) -> 
         date=date,
     )
 
-def evaluate_rufie(rufie_result, rufie_indicator, rufie_avg, date) -> Optional[RufieTestResult]:
+def evaluate_rufie(rufie_result, rufie_indicator, rufie_avg, date, test_id) -> Optional[RufieTestResult]:
     if None in (rufie_result, rufie_indicator, rufie_avg):
         return None
     if rufie_indicator > 15:
@@ -168,6 +169,7 @@ def evaluate_rufie(rufie_result, rufie_indicator, rufie_avg, date) -> Optional[R
         rufie_test_result_indicator_average=rufie_avg,
         type=status,
         date=date,
+        test_id=test_id
     )
 
 def evaluate_strup(strup_result_estimation, strup_result, strup_avg, date) -> Optional[StrupTestResult]:
@@ -187,7 +189,7 @@ def evaluate_strup(strup_result_estimation, strup_result, strup_avg, date) -> Op
         date=date,
     )
 
-def evaluate_gench(gench_result_estimation, gench_indicator, gench_avg, date) -> Optional[GenchTestResult]:
+def evaluate_gench(gench_result_estimation, gench_indicator, gench_avg, date, test_id) -> Optional[GenchTestResult]:
     if None in (gench_result_estimation, gench_indicator, gench_avg):
         return None
     status = 'BAD' if gench_indicator > 1.2 or gench_indicator > gench_avg * 1.15 else 'GOOD'
@@ -197,11 +199,12 @@ def evaluate_gench(gench_result_estimation, gench_indicator, gench_avg, date) ->
         gench_test_result_indicator_average=gench_avg,
         type=status,
         date=date,
+        test_id=test_id,
     )
 
 def evaluate_reactions(visual, audio, visual_avg, audio_avg,
     reactions_visual_diff_avg,reactions_audio_diff_avg, reactions_audio_std_avg,
-                       reactions_visual_std_avg, date) -> Optional[ReactionsTestResult]:
+                       reactions_visual_std_avg, date, test_id) -> Optional[ReactionsTestResult]:
     if None in (visual, audio, visual_avg, audio_avg):
         return None
     visual_status = 'BAD' if float(visual) > float(visual_avg) * 1.15 else 'GOOD'
@@ -217,7 +220,8 @@ def evaluate_reactions(visual, audio, visual_avg, audio_avg,
         reactions_audio_diff_avg=reactions_audio_diff_avg,
         reactions_audio_std_avg=reactions_audio_std_avg,
         reactions_visual_std_avg=reactions_visual_std_avg,
-        date=date
+        date=date,
+        test_id=test_id,
     )
 
 def evaluate_text_audition(pauses_read, pauses_repeat, pauses_read_avg, pauses_repeat_avg,

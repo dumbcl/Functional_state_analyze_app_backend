@@ -12,6 +12,13 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
     hashed_password = Column(String)
+    nickname = Column(String)
+    name = Column(String, nullable=True)
+    surname = Column(String, nullable=True)
+    weight = Column(Integer, nullable=True)
+    height = Column(Integer, nullable=True)
+    gender = Column(String, nullable=True)
+    type = Column(String, nullable=True)
 
 class PulseMeasurement(Base):
     __tablename__ = "pulse_measurements"
@@ -35,6 +42,8 @@ class ShtangeTestResult(Base):
 
     result_estimation = Column(String, nullable=True)
     reaction_indicator = Column(Float, nullable=True)
+
+    testing_id = Column(Integer, ForeignKey("trainee_testings.id"))
 
     @classmethod
     def calculate_reaction_indicator(cls, heart_rate_after, heart_rate_before):
@@ -64,6 +73,8 @@ class RufieTestResult(Base):
     rufie_index = Column(Float, nullable=True)
     result_estimation = Column(String, nullable=True)
 
+    testing_id = Column(Integer, ForeignKey("trainee_testings.id"))
+
     @classmethod
     def calculate_rufie_index(cls, measurement_first, measurement_second, measurement_third):
         return ((measurement_first + measurement_second + measurement_third) - 200) / 10
@@ -91,6 +102,8 @@ class StrupTestResult(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     result_estimation = Column(String, nullable=True)
 
+    testing_id = Column(Integer, ForeignKey("trainee_testings.id"))
+
     @classmethod
     def calculate_result_estimation(cls, result):
         if result < 10:
@@ -106,6 +119,8 @@ class PersonalReportTestResult(Base):
     performance_measure = Column(Integer, nullable=False)
     test_date = Column(Date, default=date.today)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    testing_id = Column(Integer, ForeignKey("trainee_testings.id"))
 
     # Новые поля
     days_comparison = Column(String, nullable=False)  # LOT_WORSE, WORSE, SAME, BETTER, LOT_BETTER
@@ -150,6 +165,8 @@ class GenchTestResult(Base):
     result_estimation = Column(String, nullable=True)  # BAD, MEDIUM, GOOD
     reaction_indicator = Column(Float, nullable=True)
 
+    testing_id = Column(Integer, ForeignKey("trainee_testings.id"))
+
     @classmethod
     def calculate_reaction_indicator(cls, heart_rate_after, heart_rate_before):
         if heart_rate_before == 0:  # Предотвращаем деление на 0
@@ -184,6 +201,8 @@ class ReactionsTestResult(Base):
 
     # Добавляем связь с User
     user = relationship("User", back_populates="reactions_test_results")
+
+    testing_id = Column(Integer, ForeignKey("trainee_testings.id"))
 
     @classmethod
     def calculate_errors(cls, reactions: List[Tuple[int, int]]) -> int:
@@ -244,6 +263,8 @@ class EscalDailyResults(Base):
     # Для связи с пользователем
     user = relationship("User", back_populates="escal_daily_results")
 
+    testing_id = Column(Integer, ForeignKey("trainee_testings.id"))
+
 
 class TextAuditionResults(Base):
     __tablename__ = "text_audition_results"
@@ -264,6 +285,40 @@ class TextAuditionResults(Base):
 
     # Для связи с пользователем
     user = relationship("User", back_populates="text_audition_results")
+
+    testing_id = Column(Integer, ForeignKey("trainee_testings.id"))
+
+class TraineeTestings(Base):
+    __tablename__ = "trainee_testings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class StartingTestingResults(Base):
+    __tablename__ = "starting_testing_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    wellbeing_audio_file_path = Column(String, nullable=False)
+    changes_audio_file_path = Column(String, nullable=False)
+    third_question_audio_file_path = Column(String, nullable=False)
+
+    condition = Column(String)
+
+    # Для связи с пользователем
+    user = relationship("User", back_populates="text_audition_results")
+
+    testing_id = Column(Integer, ForeignKey("trainee_testings.id"))
+
+class Trainees(Base):
+    __tablename__ = "trainees"
+
+    id = Column(Integer, primary_key=True, index=True)
+    trainer_id = Column(Integer, ForeignKey("users.id"))
+    trainee_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime, default=datetime.utcnow)
+
 
 
 User.text_audition_results = relationship("TextAuditionResults", back_populates="user", uselist=False)

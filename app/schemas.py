@@ -5,6 +5,13 @@ from pydantic import BaseModel
 class UserCreate(BaseModel):
     username: str
     password: str
+    nickname: str
+    name: Optional[str] = None
+    surname: Optional[str] = None
+    weight: Optional[int] = None
+    height: Optional[int] = None
+    gender: Optional[str] = None
+    type: Optional[str] = None
 
 class Token(BaseModel):
     access_token: str
@@ -190,6 +197,7 @@ class ShtangeTestResult(BaseModel):
     shtange_test_result_indicator_average: float
     type: str
     date: str
+    test_id: int
 
     class Config:
         orm_mode = True
@@ -210,6 +218,7 @@ class RufieTestResult(BaseModel):
     rufie_test_result_indicator_average: float
     type: str
     date: str
+    test_id: int
 
     class Config:
         orm_mode = True
@@ -230,6 +239,7 @@ class GenchTestResult(BaseModel):
     gench_test_result_indicator_average: float
     type: str
     date: str
+    test_id: int
 
     class Config:
         orm_mode = True
@@ -246,6 +256,7 @@ class ReactionsTestResult(BaseModel):
     reactions_visual_std_avg: float
     reactions_audio_std_avg: float
     date: str
+    test_id: int
 
     class Config:
         orm_mode = True
@@ -298,6 +309,7 @@ class EscalDailyTestResult(BaseModel):
 
 class DailyTestResult(BaseModel):
     date: str
+    test_id: int
     shtange_test_result: Optional[ShtangeTestResult] = None
     personal_report: Optional[PersonalReportTestResult] = None
     pulse_measurement: Optional[PulseMeasurementResult] = None
@@ -404,6 +416,19 @@ class LastReactionsResult(BaseModel):
 
     reactionsAudio: List[ReactionsAvgDailyResult] = []
     reactionsVisual: List[ReactionsAvgDailyResult] = []
+
+    class Config:
+        orm_mode = True
+
+class TraineeRequest(BaseModel):
+    username: str
+
+class Trainee(BaseModel):
+    user_id: int
+    username: str
+    nickname: str
+    name: Optional[str] = None
+    surname: Optional[str] = None
 
     class Config:
         orm_mode = True

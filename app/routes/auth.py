@@ -9,9 +9,19 @@ router = APIRouter()
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.username == user.username).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
+        return {"error_msg": "USERNAME_ALREADY_REGISTERED"}
     hashed_password = auth.get_password_hash(user.password)
-    new_user = models.User(username=user.username, hashed_password=hashed_password)
+    new_user = models.User(
+        username=user.username,
+        hashed_password=hashed_password,
+        nickname=user.nickname,
+        name=user.name,
+        surname=user.surname,
+        weight=user.weight,
+        height=user.height,
+        gender=user.gender,
+        type=user.type,
+    )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -22,6 +32,20 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
 def login(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.username == user.username).first()
     if not db_user or not auth.verify_password(user.password, db_user.hashed_password):
-        raise HTTPException(status_code=400, detail="Invalid credentials")
+        return {"error_msg": "LOGIN_OR_PASSWORD_INCORRECT"}
     access_token = auth.create_access_token(data={"sub": db_user.username})
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/start-test")
+def start_test(
+    db: Session = Depends(get_db),
+    user: models.User = Depends(auth.get_current_user)
+):
+
+    test = models.TraineeTestings(
+        user_id=user.id,
+    )
+    db.add(test)
+    db.commit()
+    db.refresh(test)
+    return {"new_test_id": test.id}

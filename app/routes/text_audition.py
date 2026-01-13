@@ -140,3 +140,49 @@ async def post_text_audition_result(
         return {"status": "added"}
     except Exception as e:
         raise HTTPException(status_code=501, detail=str(e))
+
+@router.post("/start-testing-results")
+async def post_start_testing_result(
+    condition: str = Form(...),
+    test_id: str = Form(...),
+    wellbeing_audio_file: UploadFile = File(...),
+    changes_audio_file: UploadFile = File(...),
+    third_question_audio_file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: models.User = Depends(auth.get_current_user)
+):
+    try:
+        upload_folder = "uploads/audio_files"
+        Path(upload_folder).mkdir(parents=True, exist_ok=True)
+
+        # Сохранение первого файла
+        wellbeing_audio_file_path = os.path.join(upload_folder, wellbeing_audio_file.filename)
+        with open(wellbeing_audio_file_path, "wb") as buffer:
+            shutil.copyfileobj(wellbeing_audio_file.file, buffer)
+
+        # Сохранение второго файла
+        changes_audio_file_path = os.path.join(upload_folder, changes_audio_file.filename)
+        with open(changes_audio_file_path, "wb") as buffer:
+            shutil.copyfileobj(changes_audio_file.file, buffer)
+
+            # Сохранение первого файла
+        third_question_audio_file_path = os.path.join(upload_folder, third_question_audio_file.filename)
+        with open(third_question_audio_file_path, "wb") as buffer:
+            shutil.copyfileobj(third_question_audio_file.file, buffer)
+
+
+        text_audition_result = models.StartingTestingResults(
+            user_id=user.id,
+            wellbeing_audio_file_path=wellbeing_audio_file_path,
+            changes_audio_file_path=changes_audio_file_path,
+            third_question_audio_file_path=third_question_audio_file_path,
+            condition=condition,
+            testing_id=test_id,
+        )
+        db.add(text_audition_result)
+        db.commit()
+        db.refresh(text_audition_result)
+
+        return {"status": "added"}
+    except Exception as e:
+        raise HTTPException(status_code=501, detail=str(e))

@@ -24,7 +24,8 @@ def get_trend_test_results(
             shtange_result=obj.result_estimation,
             shtange_result_indicator=obj.reaction_indicator,
             shtange_average=db.query(func.avg(models.ShtangeTestResult.reaction_indicator)).filter_by(user_id=user.id).scalar(),
-            date=str(obj.test_date)
+            date=str(obj.test_date),
+            test_id=obj.testing_id,
         )
         for obj in shtange_objs
     ]
@@ -76,7 +77,8 @@ def get_trend_test_results(
             rufie_result=obj.result_estimation,
             rufie_indicator=obj.rufie_index,
             rufie_avg=avg_rufie,
-            date=str(obj.test_date)
+            date=str(obj.test_date),
+            test_id=obj.testing_id,
         )
         for obj in rufie_objs
     ]
@@ -110,7 +112,8 @@ def get_trend_test_results(
             gench_indicator=obj.reaction_indicator,
             gench_result_estimation=obj.result_estimation,
             gench_avg=avg_gench,
-            date=str(obj.test_date)
+            date=str(obj.test_date),
+            test_id=obj.testing_id,
         )
         for obj in gench_objs
     ]
@@ -134,7 +137,8 @@ def get_trend_test_results(
             reactions_visual_diff_avg=obj.visual_average_diff,
             reactions_audio_std_avg=obj.audio_quav_diff,
             reactions_visual_std_avg=obj.visual_quav_diff,
-            date=str(obj.test_date)
+            date=str(obj.test_date),
+            test_id=obj.testing_id,
         )
         for obj in reactions_objs
     ]
@@ -306,7 +310,7 @@ def get_fs_categories_by_date(db: Session, user: models.User) -> List[DailyEstim
 
 @router.get("/last-gench-result", response_model=LastGenchResult)
 def get_last_gench_result(
-    date: str = "",   # <-- параметр по умолчанию — пустая строка
+    test_id: int = -1,   # <-- параметр по умолчанию — пустая строка
     db: Session = Depends(get_db),
     user: models.User = Depends(auth.get_current_user),
 ):
@@ -320,7 +324,7 @@ def get_last_gench_result(
     # -----------------------------
     # 1. Если дата пустая → последний тест
     # -----------------------------
-    if date.strip() == "":
+    if test_id == -1:
         gench_qs = base_query.all()
         if not gench_qs:
             return LastGenchResult(
@@ -344,7 +348,7 @@ def get_last_gench_result(
 
         # Ищем первое совпадение по test_date
         last_obj = next(
-            (obj for obj in gench_qs if str(obj.test_date) == date),
+            (obj for obj in gench_qs if obj.testing_id == test_id),
             None
         )
 
@@ -398,7 +402,7 @@ def get_last_gench_result(
 
 @router.get("/last-shtange-result", response_model=LastShtangeResult)
 def get_last_shtange_result(
-    date: str = "",
+    test_id: int = -1,
     db: Session = Depends(get_db),
     user: models.User = Depends(auth.get_current_user),
 ):
@@ -409,7 +413,7 @@ def get_last_shtange_result(
         .all()
     )
 
-    if date.strip() == "":
+    if test_id == -1:
         if not shtange_qs:
             return LastGenchResult(
                 heartRateBefore=None,
@@ -431,7 +435,7 @@ def get_last_shtange_result(
 
         # Ищем первое совпадение по test_date
         last_obj = next(
-            (obj for obj in shtange_qs if str(obj.test_date) == date),
+            (obj for obj in shtange_qs if obj.testing_id == test_id),
             None
         )
 
@@ -485,7 +489,7 @@ def get_last_shtange_result(
 
 @router.get("/last-reactions-result", response_model=LastReactionsResult)
 def get_last_reactions_result(
-    date: str,
+    test_id: int = -1,
     db: Session = Depends(get_db),
     user: models.User = Depends(auth.get_current_user),
 ):
@@ -496,7 +500,7 @@ def get_last_reactions_result(
         .all()
     )
 
-    if date.strip() == "":
+    if test_id == -1:
         if not reactions_qs:
             return LastGenchResult(
                 heartRateBefore=None,
@@ -516,9 +520,9 @@ def get_last_reactions_result(
     # -----------------------------
     else:
 
-        # Ищем первое совпадение по test_date
+        # Ищем первое совпадение по test_id
         last_obj = next(
-            (obj for obj in reactions_qs if str(obj.test_date) == date),
+            (obj for obj in reactions_qs if obj.testing_id == test_id),
             None
         )
 
