@@ -177,7 +177,7 @@ async def post_start_testing_result(
             changes_audio_file_path=changes_audio_file_path,
             third_question_audio_file_path=third_question_audio_file_path,
             condition=condition,
-            testing_id=test_id,
+            testing_id=int(test_id),
         )
         db.add(text_audition_result)
         db.commit()

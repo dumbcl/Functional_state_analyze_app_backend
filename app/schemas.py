@@ -44,6 +44,7 @@ class AvailableTest(BaseModel):
 class AvailableTestsResponse(BaseModel):
     available_tests: List[AvailableTest]
     completed_tests: List[AvailableTest]
+    test_id: Optional[int] = None
 
 class EscalResultsCreate(BaseModel):
     v1_result: int

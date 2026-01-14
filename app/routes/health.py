@@ -61,10 +61,9 @@ def add_escal_test(data: schemas.EscalTestIn, db: Session = Depends(get_db), use
 # app/routes/health.py
 @router.get("/available-tests", response_model=schemas.AvailableTestsResponse)
 def get_available_tests(db: Session = Depends(get_db), user: models.User = Depends(auth.get_current_user)):
-    today = date.today()
 
     # Все возможные типы тестов
-    test_types = ["shtange", "escal", "escal_daily", "gench", "reactions", "rufie", "strup", "text_audition", "personal_report"]
+    test_types = ["escal", "escal_daily", "shtange", "gench", "reactions", "rufie"]
     available_tests = []
     completed_tests = []
 
@@ -79,15 +78,23 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
     # Если "escal" не пройден — возвращаем только "escal" в доступных тестах
     if not escal_test_completed:
         available_tests.append(schemas.AvailableTest(type="escal"))
-        #return schemas.AvailableTestsResponse(
-         #   available_tests=available_tests,
-          #  completed_tests=[]
-        #)
+        return schemas.AvailableTestsResponse(
+            available_tests=available_tests,
+            completed_tests=[]
+        )
 
     # Если "escal" пройден, всегда добавляем "escal_daily" в доступные тесты
     #available_tests.append(schemas.AvailableTest(type="escal_daily"))
 
-    # Для остальных тестов проверяем, были ли они пройдены сегодня
+    current_testing = db.query(models.TraineeTestings).filter_by(user_id=user.id).order_by(models.TraineeTestings.created_at.desc()).first()
+    if current_testing is None:
+        return schemas.AvailableTestsResponse(
+            available_tests=[],
+            completed_tests=[]
+        )
+    current_test_id = current_testing.id
+
+
     for test_type in test_types:
 
         if test_type == "escal":
@@ -97,48 +104,48 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
         last_test_date = None  # Дата последнего прохождения
 
         if test_type == "shtange":
-            test = db.query(models.ShtangeTestResult).filter_by(user_id=user.id).order_by(models.ShtangeTestResult.test_date.desc()).first()
+            test = db.query(models.ShtangeTestResult).filter_by(user_id=user.id).order_by(models.ShtangeTestResult.created_at.desc()).first()
 
-            if test and test.test_date == today:
+            if test and test.testing_id == current_test_id:
                 exists = True
                 last_test_date = test.test_date
         elif test_type == "escal":
             continue
         elif test_type == "escal_daily":
-            test = db.query(models.EscalDailyResults).filter_by(user_id=user.id).order_by(models.EscalDailyResults.test_date.desc()).first()
-            if test and test.test_date == today:
+            test = db.query(models.EscalDailyResults).filter_by(user_id=user.id).order_by(models.EscalDailyResults.created_at.desc()).first()
+            if test and test.testing_id == current_test_id:
                 exists = True
                 last_test_date = test.test_date
         elif test_type == "gench":
-            test = db.query(models.GenchTestResult).filter_by(user_id=user.id).order_by(models.GenchTestResult.test_date.desc()).first()
-            if test and test.test_date == today:
+            test = db.query(models.GenchTestResult).filter_by(user_id=user.id).order_by(models.GenchTestResult.created_at.desc()).first()
+            if test and test.testing_id == current_test_id:
                 exists = True
                 last_test_date = test.test_date
         elif test_type == "reactions":
-            test = db.query(models.ReactionsTestResult).filter_by(user_id=user.id).order_by(models.ReactionsTestResult.test_date.desc()).first()
-            if test and test.test_date == today:
+            test = db.query(models.ReactionsTestResult).filter_by(user_id=user.id).order_by(models.ReactionsTestResult.created_at.desc()).first()
+            if test and test.testing_id == current_test_id:
                 exists = True
                 last_test_date = test.test_date
         elif test_type == "rufie":
-            test = db.query(models.RufieTestResult).filter_by(user_id=user.id).order_by(models.RufieTestResult.test_date.desc()).first()
-            if test and test.test_date == today:
+            test = db.query(models.RufieTestResult).filter_by(user_id=user.id).order_by(models.RufieTestResult.created_at.desc()).first()
+            if test and test.testing_id == current_test_id:
                 exists = True
                 last_test_date = test.test_date
         elif test_type == "strup":
             test = db.query(models.StrupTestResult).filter_by(user_id=user.id).order_by(models.StrupTestResult.test_date.desc()).first()
-            if test and test.test_date == today:
+            if test and test.testing_id == current_test_id:
                 exists = True
                 last_test_date = test.test_date
         elif test_type == "text_audition":
             test = db.query(models.TextAuditionResults).filter_by(user_id=user.id).order_by(
                 models.TextAuditionResults.test_date.desc()).first()
-            if test and test.test_date == today:
+            if test and test.testing_id == current_test_id:
                 exists = True
                 last_test_date = test.test_date
         elif test_type == "personal_report":
             test = db.query(models.PersonalReportTestResult).filter_by(user_id=user.id).order_by(
                 models.PersonalReportTestResult.test_date.desc()).first()
-            if test and test.test_date == today:
+            if test and test.testing_id == current_test_id:
                 exists = True
                 last_test_date = test.test_date
 
