@@ -30,6 +30,7 @@ class ShtangeTestIn(BaseModel):
     heart_rate_before: int
     breath_hold_seconds: int
     heart_rate_after: int
+    test_id: int
 
 class EscalTestIn(BaseModel):
     result_text: str
@@ -69,6 +70,7 @@ class ReactionsTestResultsCreate(BaseModel):
     audio: List[Tuple[int, int]]   # Список пар для audio
     visual_mistakes_count: int
     audio_mistakes_count: int
+    test_id: int
 
 class ReactionsTestResultsResponse(ReactionsTestResultsCreate):
     id: int
@@ -86,6 +88,7 @@ class GenchTestResultCreate(BaseModel):
     heart_rate_before: int
     breath_hold_seconds: int
     heart_rate_after: int
+    test_id: int
 
 class GenchTestResultResponse(GenchTestResultCreate):
     id: int
@@ -102,6 +105,7 @@ class RufieTestResultCreate(BaseModel):
     measurement_first: int
     measurement_second: int
     measurement_third: int
+    test_id: int
 
 class RufieTestResultResponse(RufieTestResultCreate):
     id: int
@@ -158,6 +162,7 @@ class EscalDailyResultsCreate(BaseModel):
     moodZ: float
     ipX: int
     ipZ: float
+    test_id: int
 
 class EscalDailyResultsResponse(EscalDailyResultsCreate):
     id: int

@@ -42,7 +42,8 @@ def add_shtange_test(data: schemas.ShtangeTestIn, db: Session = Depends(get_db),
         breath_hold_seconds=data.breath_hold_seconds,
         heart_rate_after=data.heart_rate_after,
         result_estimation=models.ShtangeTestResult.calculate_result_estimation(data.breath_hold_seconds),
-        reaction_indicator=models.ShtangeTestResult.calculate_reaction_indicator(data.heart_rate_after, data.heart_rate_before)
+        reaction_indicator=models.ShtangeTestResult.calculate_reaction_indicator(data.heart_rate_after, data.heart_rate_before),
+        testing_id=data.test_id
     )
     db.add(test)
     db.commit()

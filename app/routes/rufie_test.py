@@ -23,7 +23,8 @@ def create_rufie_test(
         measurement_second=data.measurement_second,
         measurement_third=data.measurement_third,
         rufie_index=rufie_index,
-        result_estimation=result_estimation
+        result_estimation=result_estimation,
+        testing_id=data.test_id
     )
     db.add(test)
     db.commit()

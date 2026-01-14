@@ -23,7 +23,8 @@ def create_gench_test(
         breath_hold_seconds=data.breath_hold_seconds,
         heart_rate_after=data.heart_rate_after,
         result_estimation=result_estimation,
-        reaction_indicator=reaction_indicator
+        reaction_indicator=reaction_indicator,
+        testing_id=data.test_id
     )
     db.add(test)
     db.commit()

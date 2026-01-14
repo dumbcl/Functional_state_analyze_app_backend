@@ -32,6 +32,7 @@ def create_reactions_test(
         audio_average_diff = audio_average_diff,
         visual_quav_diff = visual_quav_diff,
         audio_quav_diff = audio_quav_diff,
+        testing_id=data.test_id
     )
 
     db.add(test)

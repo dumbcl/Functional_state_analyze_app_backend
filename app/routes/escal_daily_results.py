@@ -31,7 +31,8 @@ def create_escal_daily_results(
         moodX=data.moodX,
         moodZ=data.moodZ,
         ipX=data.ipX,
-        ipZ=data.ipZ
+        ipZ=data.ipZ,
+        testing_id=data.test_id
     )
     db.add(test)
     db.commit()
