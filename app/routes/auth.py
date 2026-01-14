@@ -34,7 +34,7 @@ def login(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if not db_user or not auth.verify_password(user.password, db_user.hashed_password):
         return {"error_msg": "LOGIN_OR_PASSWORD_INCORRECT"}
     access_token = auth.create_access_token(data={"sub": db_user.username})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "nickname": db_user.nickname}
 
 @router.post("/start-test")
 def start_test(
