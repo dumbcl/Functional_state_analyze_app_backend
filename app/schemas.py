@@ -14,12 +14,17 @@ class UserCreate(BaseModel):
     type: Optional[str] = None
 
 class Token(BaseModel):
-    access_token: str
-    token_type: str
+    access_token: Optional[str] = None
+    token_type: Optional[str] = None
+    error_msg: Optional[str] = None
 
 class PulseIn(BaseModel):
     value: int
     measured_at: datetime
+
+class TraineeAdding(BaseModel):
+    status: Optional[str] = None
+    error_msg: Optional[str] = None
 
 class PulseResponse(BaseModel):
     value: int
