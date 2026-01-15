@@ -160,6 +160,7 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
 
     return schemas.AvailableTestsResponse(
         available_tests=available_tests,
-        completed_tests=completed_tests
+        completed_tests=completed_tests,
+        test_id=current_test_id,
     )
 
