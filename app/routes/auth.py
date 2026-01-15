@@ -29,7 +29,7 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.put("/refresh", response_model=schemas.Token)
+@router.post("/refresh", response_model=schemas.Token)
 def admin_update_password(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.username == user.username).first()
     if not db_user:
