@@ -52,7 +52,7 @@ def get_trainees(
 
     return result
 
-@router.delete("/delete-trainee", response_model=schemas.TraineeAdding)
+@router.post("/delete-trainee", response_model=schemas.TraineeAdding)
 def delet_trainee(
         data: schemas.TraineeRequest,
         db: Session = Depends(get_db),
