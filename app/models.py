@@ -307,7 +307,7 @@ class StartingTestingResults(Base):
     condition = Column(String)
 
     # Для связи с пользователем
-    user = relationship("User", back_populates="text_audition_results")
+    user = relationship("User", back_populates="starting_testing_results")
 
     testing_id = Column(Integer, ForeignKey("trainee_testings.id"))
 
@@ -325,3 +325,4 @@ User.text_audition_results = relationship("TextAuditionResults", back_populates=
 User.escal_daily_results = relationship("EscalDailyResults", back_populates="user", uselist=False)
 User.reactions_test_results = relationship("ReactionsTestResult", back_populates="user", uselist=False)
 User.escal_results = relationship("EscalResults", back_populates="user", uselist=False)
+User.starting_testing_results = relationship("StartingTestingResults", back_populates="user", uselist=False)
