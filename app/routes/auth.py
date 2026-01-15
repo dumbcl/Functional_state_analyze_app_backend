@@ -31,7 +31,7 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=schemas.Token)
 def login(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.username == user.username).first()
-    if not db_user or not auth.verify_password(user.password, db_user.hashed_password):
+    if not db_user or not auth.verify_password(user.password, db_user.hashed_password) or db_user.type != user.type:
         return {"error_msg": "LOGIN_OR_PASSWORD_INCORRECT"}
     access_token = auth.create_access_token(data={"sub": db_user.username})
     return {"access_token": access_token, "token_type": "bearer", "nickname": db_user.nickname}

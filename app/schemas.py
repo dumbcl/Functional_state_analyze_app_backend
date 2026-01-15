@@ -17,6 +17,7 @@ class Token(BaseModel):
     access_token: Optional[str] = None
     token_type: Optional[str] = None
     error_msg: Optional[str] = None
+    nickname: Optional[str] = None
 
 class PulseIn(BaseModel):
     value: int
