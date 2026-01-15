@@ -26,7 +26,7 @@ def add_trainee(
     return {"status": "added"}
 
 
-@router.get("/get_trainees", response_model=List[Trainee])
+@router.get("/get-trainees", response_model=List[Trainee])
 def get_trainees(
         db: Session = Depends(get_db),
         user: models.User = Depends(auth.get_current_user)
