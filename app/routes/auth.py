@@ -28,6 +28,18 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     access_token = auth.create_access_token(data={"sub": new_user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
+
+@router.put("/refresh", response_model=schemas.Token)
+def admin_update_password(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.username == user.username).first()
+    if not db_user:
+        return {"error_msg": "USERNAME_NOT_EXISTS"}
+
+    db_user.hashed_password = auth.get_password_hash(user.password)
+    db.commit()
+
+    return {"status": "PASSWORD_UPDATED_SUCCESSFULLY"}
+
 @router.post("/login", response_model=schemas.Token)
 def login(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.username == user.username).first()

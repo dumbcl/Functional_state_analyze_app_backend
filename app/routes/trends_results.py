@@ -317,6 +317,7 @@ def get_last_gench_result(
     # Получаем все тесты пользователя
     base_query = (
         db.query(models.GenchTestResult)
+        .filter(models.GenchTestResult.user_id == user.id)
         .order_by(models.GenchTestResult.test_date.asc(), models.GenchTestResult.created_at.asc())
     )
 
@@ -407,6 +408,7 @@ def get_last_shtange_result(
 ):
     shtange_qs = (
         db.query(models.ShtangeTestResult)
+        .filter(models.ShtangeTestResult.user_id == user.id)
         .order_by(models.ShtangeTestResult.test_date.asc(), models.ShtangeTestResult.created_at.asc())
         .all()
     )
@@ -493,6 +495,7 @@ def get_last_reactions_result(
 ):
     reactions_qs = (
         db.query(models.ReactionsTestResult)
+        .filter(models.ReactionsTestResult.user_id == user.id)
         .order_by(models.ReactionsTestResult.test_date.asc(), models.ReactionsTestResult.created_at.asc())
         .all()
     )
@@ -784,3 +787,280 @@ def get_trend_test_results(
         escal_daily_test_result=escal_daily_test_result,
         estimation_result=get_fs_categories_by_date(db, user_id),
     )
+
+
+@router.get("/last-gench-result-public", response_model=LastGenchResult)
+def get_last_gench_result_public(
+    test_id: int = -1,   # <-- параметр по умолчанию — пустая строка
+    user_id: int = -1,
+    db: Session = Depends(get_db),
+):
+    # Получаем все тесты пользователя
+    base_query = (
+        db.query(models.GenchTestResult)
+        .filter(models.GenchTestResult.user_id == user_id)
+        .order_by(models.GenchTestResult.test_date.asc(), models.GenchTestResult.created_at.asc())
+    )
+
+    # -----------------------------
+    # 1. Если дата пустая → последний тест
+    # -----------------------------
+    if test_id == -1:
+        gench_qs = base_query.all()
+        if not gench_qs:
+            return LastGenchResult(
+                heartRateBefore=None,
+                heartRateAfter=None,
+                genchIndicator=None,
+                genchIndicatorAvg=None,
+                genchIndicators=[],
+                estimate=None,
+                estimates=[],
+                breathHoldSeconds=None,
+                breathHoldSecondsAvg=None
+            )
+        last_obj = gench_qs[-1]
+
+    # -----------------------------
+    # 2. Если дата НЕ пустая → найти тест по дате
+    # -----------------------------
+    else:
+        gench_qs = base_query.all()
+
+        # Ищем первое совпадение по test_date
+        last_obj = next(
+            (obj for obj in gench_qs if obj.testing_id == test_id),
+            None
+        )
+
+        if last_obj is None:
+            last_obj = gench_qs[-1]
+
+    # -----------------------------------------
+    # Общие вычисления (для avg и списков)
+    # -----------------------------------------
+    indicators = [
+        obj.reaction_indicator
+        for obj in gench_qs
+        if obj.reaction_indicator is not None
+    ]
+    gench_indicator_avg = sum(indicators) / len(indicators) if indicators else None
+
+    breath_holds = [
+        obj.breath_hold_seconds
+        for obj in gench_qs
+        if obj.breath_hold_seconds is not None
+    ]
+    breath_hold_seconds_avg = sum(breath_holds) / len(breath_holds) if breath_holds else None
+
+    gench_indicators = [
+        GenchDailyResults(
+            indicator=obj.reaction_indicator,
+            date=str(obj.test_date),
+        )
+        for obj in gench_qs
+        if obj.reaction_indicator is not None
+    ]
+
+    estimates = [
+        obj.result_estimation
+        for obj in gench_qs
+        if obj.result_estimation is not None
+    ]
+
+    return LastGenchResult(
+        heartRateBefore=last_obj.heart_rate_before,
+        heartRateAfter=last_obj.heart_rate_after,
+        genchIndicator=last_obj.reaction_indicator,
+        genchIndicatorAvg=gench_indicator_avg,
+        genchIndicators=gench_indicators,
+        estimate=last_obj.result_estimation,
+        estimates=estimates,
+        breathHoldSeconds=last_obj.breath_hold_seconds,
+        breathHoldSecondsAvg=breath_hold_seconds_avg
+    )
+
+
+@router.get("/last-shtange-result-public", response_model=LastShtangeResult)
+def get_last_shtange_result_public(
+    test_id: int = -1,
+    user_id: int = -1,
+    db: Session = Depends(get_db),
+):
+    shtange_qs = (
+        db.query(models.ShtangeTestResult)
+        .filter(models.ShtangeTestResult.user_id == user_id)
+        .order_by(models.ShtangeTestResult.test_date.asc(), models.ShtangeTestResult.created_at.asc())
+        .all()
+    )
+
+    if test_id == -1:
+        if not shtange_qs:
+            return LastGenchResult(
+                heartRateBefore=None,
+                heartRateAfter=None,
+                genchIndicator=None,
+                genchIndicatorAvg=None,
+                genchIndicators=[],
+                estimate=None,
+                estimates=[],
+                breathHoldSeconds=None,
+                breathHoldSecondsAvg=None
+            )
+        last_obj = shtange_qs[-1]
+
+    # -----------------------------
+    # 2. Если дата НЕ пустая → найти тест по дате
+    # -----------------------------
+    else:
+
+        # Ищем первое совпадение по test_date
+        last_obj = next(
+            (obj for obj in shtange_qs if obj.testing_id == test_id),
+            None
+        )
+
+        if last_obj is None:
+            last_obj = shtange_qs[-1]
+
+    indicators = [
+        obj.reaction_indicator
+        for obj in shtange_qs
+        if obj.reaction_indicator is not None
+    ]
+    shtange_indicator_avg = (
+        sum(indicators) / len(indicators) if indicators else None
+    )
+
+    breath_holds = [
+        obj.breath_hold_seconds
+        for obj in shtange_qs
+        if obj.breath_hold_seconds is not None
+    ]
+    breath_hold_seconds_avg = (
+        sum(breath_holds) / len(breath_holds) if breath_holds else None
+    )
+
+    shtange_indicators = [
+        ShtangeDailyResults(
+            indicator=obj.reaction_indicator,
+            date=str(obj.test_date),
+        )
+        for obj in shtange_qs
+        if obj.reaction_indicator is not None
+    ]
+
+    estimates = [
+        obj.result_estimation
+        for obj in shtange_qs
+        if obj.result_estimation is not None
+    ]
+
+    return LastShtangeResult(
+        heartRateBefore=last_obj.heart_rate_before,
+        heartRateAfter=last_obj.heart_rate_after,
+        shtangeIndicator=last_obj.reaction_indicator,
+        shtangeIndicatorAvg=shtange_indicator_avg,
+        shtangeIndicators=shtange_indicators,
+        estimate=last_obj.result_estimation,
+        estimates=estimates,
+        breathHoldSeconds=last_obj.breath_hold_seconds,
+        breathHoldSecondsAvg=breath_hold_seconds_avg
+    )
+
+@router.get("/last-reactions-result-public", response_model=LastReactionsResult)
+def get_last_reactions_result_public(
+    test_id: int = -1,
+    user_id: int = -1,
+    db: Session = Depends(get_db),
+):
+    reactions_qs = (
+        db.query(models.ReactionsTestResult)
+        .filter(models.ReactionsTestResult.user_id == user_id)
+        .order_by(models.ReactionsTestResult.test_date.asc(), models.ReactionsTestResult.created_at.asc())
+        .all()
+    )
+
+    if test_id == -1:
+        if not reactions_qs:
+            return LastGenchResult(
+                heartRateBefore=None,
+                heartRateAfter=None,
+                genchIndicator=None,
+                genchIndicatorAvg=None,
+                genchIndicators=[],
+                estimate=None,
+                estimates=[],
+                breathHoldSeconds=None,
+                breathHoldSecondsAvg=None
+            )
+        last_obj = reactions_qs[-1]
+
+    # -----------------------------
+    # 2. Если дата НЕ пустая → найти тест по дате
+    # -----------------------------
+    else:
+
+        # Ищем первое совпадение по test_id
+        last_obj = next(
+            (obj for obj in reactions_qs if obj.testing_id == test_id),
+            None
+        )
+
+        if last_obj is None:
+            last_obj = reactions_qs[-1]
+
+    # Средние по всем тестам
+    audio_avgs = [
+        obj.audio_average_diff
+        for obj in reactions_qs
+        if obj.audio_average_diff is not None
+    ]
+    visual_avgs = [
+        obj.visual_average_diff
+        for obj in reactions_qs
+        if obj.visual_average_diff is not None
+    ]
+
+    audio_avg_alltime = (
+        sum(audio_avgs) / len(audio_avgs) if audio_avgs else None
+    )
+    visual_avg_alltime = (
+        sum(visual_avgs) / len(visual_avgs) if visual_avgs else None
+    )
+
+    # Списки по дням
+    reactions_audio = [
+        ReactionsAvgDailyResult(
+            indicator=obj.audio_average_diff,
+            date=str(obj.test_date),
+        )
+        for obj in reactions_qs
+        if obj.audio_average_diff is not None
+    ]
+
+    reactions_visual = [
+        ReactionsAvgDailyResult(
+            indicator=obj.visual_average_diff,
+            date=str(obj.test_date),
+        )
+        for obj in reactions_qs
+        if obj.visual_average_diff is not None
+    ]
+
+    return LastReactionsResult(
+        audioResultMistakes=last_obj.audio_errors,
+        videoResultMistakes=last_obj.visual_errors,
+
+        reactionResultAudioAvgResult=last_obj.audio_average_diff,
+        reactionResultAudioAvgAlltimeResult=audio_avg_alltime,
+        reactionResultAudioStdResult=last_obj.audio_quav_diff,
+
+        reactionResultVisualAvgResult=last_obj.visual_average_diff,
+        reactionResultVisualAvgAlltimeResult=visual_avg_alltime,
+        reactionResultVisualStdResult=last_obj.visual_quav_diff,
+
+        reactionsAudio=reactions_audio,
+        reactionsVisual=reactions_visual,
+    )
+
