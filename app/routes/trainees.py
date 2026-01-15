@@ -7,7 +7,7 @@ from typing import List
 
 router = APIRouter()
 
-@router.post("/add-trainee")
+@router.post("/add-trainee", response_model=schemas.TraineeAdding)
 def add_trainee(
     data: schemas.TraineeRequest,
     db: Session = Depends(get_db),
@@ -52,7 +52,7 @@ def get_trainees(
 
     return result
 
-@router.delete("/delete-trainee")
+@router.delete("/delete-trainee", response_model=schemas.TraineeAdding)
 def delet_trainee(
         data: schemas.TraineeRequest,
         db: Session = Depends(get_db),
