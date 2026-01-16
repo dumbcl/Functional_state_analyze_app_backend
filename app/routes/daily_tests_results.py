@@ -282,7 +282,7 @@ def get_daily_test_results(db: Session = Depends(get_db), user: models.User = De
         audio_quav_diff = reactions_results[0].audio_quav_diff if reactions_results else None
         visual_quav_diff = reactions_results[0].visual_quav_diff if reactions_results else None
 
-        rufie_results = db.query(models.RufieTestResult).filter_by(user_id=user.id, test_id=test_id).all()
+        rufie_results = db.query(models.RufieTestResult).filter_by(user_id=user.id, testing_id=test_id).all()
         rufie_result = rufie_results[0].result_estimation if rufie_results else None
         rufie_result_indicator = rufie_results[0].rufie_index if rufie_results else None
         rufie_test_result_indicator_average = db.query(func.avg(models.RufieTestResult.rufie_index)).filter_by(
