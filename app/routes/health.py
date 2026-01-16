@@ -64,25 +64,25 @@ def add_escal_test(data: schemas.EscalTestIn, db: Session = Depends(get_db), use
 def get_available_tests(db: Session = Depends(get_db), user: models.User = Depends(auth.get_current_user)):
 
     # Все возможные типы тестов
-    test_types = ["shtange", "gench", "reactions", "rufie"]
+    test_types = ["escal", "escal_daily", "shtange", "gench", "reactions", "rufie"]
     available_tests = []
     completed_tests = []
 
     # Флаг для проверки, был ли пройден тест "escal"
-    #escal_test_completed = False
+    escal_test_completed = False
 
     # Проверяем, был ли пройден тест "escal"
-    #escal_test = db.query(models.EscalResults).filter_by(user_id=user.id).first()
-    #if escal_test:
-     #   escal_test_completed = True
+    escal_test = db.query(models.EscalResults).filter_by(user_id=user.id).first()
+    if escal_test:
+        escal_test_completed = True
 
     # Если "escal" не пройден — возвращаем только "escal" в доступных тестах
-   # if not escal_test_completed:
-    #    available_tests.append(schemas.AvailableTest(type="escal"))
-     #   return schemas.AvailableTestsResponse(
-     #       available_tests=available_tests,
-     #       completed_tests=[]
-      #  )
+    if not escal_test_completed:
+        available_tests.append(schemas.AvailableTest(type="escal"))
+        return schemas.AvailableTestsResponse(
+            available_tests=available_tests,
+            completed_tests=[]
+        )
 
     # Если "escal" пройден, всегда добавляем "escal_daily" в доступные тесты
     #available_tests.append(schemas.AvailableTest(type="escal_daily"))
