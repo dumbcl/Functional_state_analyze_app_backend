@@ -2,14 +2,21 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app import models, schemas, database, auth
 from app.database import SessionLocal, get_db
+from sqlalchemy import func
 
 router = APIRouter()
 
+
 @router.post("/register", response_model=schemas.Token)
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.username == user.username).first()
-    if db_user:
-        return {"error_msg": "USERNAME_ALREADY_REGISTERED"}
+    if not user.username or user.username.strip() == "":
+        max_id = db.query(func.max(models.User.id)).scalar() or 0
+        user.username = str(max_id + 1)
+    else:
+        db_user = db.query(models.User).filter(models.User.username == user.username).first()
+        if db_user:
+            return {"error_msg": "USERNAME_ALREADY_REGISTERED"}
+
     hashed_password = auth.get_password_hash(user.password)
     new_user = models.User(
         username=user.username,
