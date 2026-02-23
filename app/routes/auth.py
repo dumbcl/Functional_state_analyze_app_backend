@@ -8,7 +8,7 @@ router = APIRouter()
 
 
 @router.post("/register", response_model=schemas.Token)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+def register(user: schemas.UserCreate, db: Session = Depends(get_db), author: models.User = Depends(auth.get_current_user)):
     if not user.username or user.username.strip() == "":
         max_id = db.query(func.max(models.User.id)).scalar() or 0
         user.username = str(max_id + 1)
@@ -33,6 +33,15 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     access_token = auth.create_access_token(data={"sub": new_user.username})
+
+    if user.silent_creation:
+        test = models.Trainees(
+            trainer_id=author.id,
+            trainee_id=new_user.id,
+        )
+        db.add(test)
+        db.commit()
+        db.refresh(test)
     return {"access_token": access_token, "token_type": "bearer"}
 
 

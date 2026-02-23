@@ -12,6 +12,7 @@ class UserCreate(BaseModel):
     height: Optional[int] = None
     gender: Optional[str] = None
     type: Optional[str] = None
+    silent_creation: Optional[bool] = False
 
 class Token(BaseModel):
     access_token: Optional[str] = None
