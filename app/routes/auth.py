@@ -122,7 +122,7 @@ def start_test_find(
     db.commit()
     return {"new_test_id": testing.id}
 
-@router.post("/profile-info")
+@router.get("/profile-info")
 def start_test_find(
     user_id: int,
     db: Session = Depends(get_db),
