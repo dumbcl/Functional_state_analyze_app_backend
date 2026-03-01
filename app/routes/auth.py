@@ -121,3 +121,19 @@ def start_test_find(
     testing.has_started = True
     db.commit()
     return {"new_test_id": testing.id}
+
+@router.post("/profile-info")
+def start_test_find(
+    user_id: int,
+    db: Session = Depends(get_db),
+    response_model=schemas.ProfileInfo
+):
+
+    user = db.query(models.TraineeTestings).filter(models.User.id == user_id).first()
+    if not user:
+        return schemas.ProfileInfo()
+
+    return schemas.ProfileInfo(
+        height = user.height,
+        weight = user.weight
+    )

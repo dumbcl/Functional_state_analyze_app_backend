@@ -344,6 +344,7 @@ def get_daily_test_private(
     unique_test_ids += db.query(models.GenchTestResult.testing_id).filter_by(user_id=user_id).distinct().all()
     unique_test_ids += db.query(models.ReactionsTestResult.testing_id).filter_by(user_id=user_id).distinct().all()
     unique_test_ids += db.query(models.RufieTestResult.testing_id).filter_by(user_id=user_id).distinct().all()
+    unique_test_ids += db.query(models.TraineeTestings.id).filter_by(user_id=user_id).distinct().all()
 
     # Убираем дублированные даты
     unique_test_ids = list(set([date[0] for date in unique_test_ids]))

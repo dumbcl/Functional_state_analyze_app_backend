@@ -475,3 +475,10 @@ class FindTestingRequest(BaseModel):
 
     class Config:
         orm_mode = True
+
+class ProfileInfo(BaseModel):
+    height: Optional[int] = None
+    weight: Optional[int] = None
+
+    class Config:
+        orm_mode = True
