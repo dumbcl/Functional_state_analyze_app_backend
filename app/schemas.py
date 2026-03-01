@@ -337,6 +337,7 @@ class DailyTestResult(BaseModel):
     escal_daily_test_result: Optional[EscalDailyTestResult] = None
     day_description: Optional[str] = None
     day_type: Optional[str] = None
+    code: Optional[str] = None
 
     class Config:
         orm_mode = True

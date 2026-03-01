@@ -422,6 +422,7 @@ def get_daily_test_private(
                 date=str(test_date),
                 test_id=test_id,
             ),
+            code=testing.code,
         )
 
         daily_results.append(result)
