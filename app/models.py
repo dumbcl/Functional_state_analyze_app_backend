@@ -303,6 +303,7 @@ class TraineeTestings(Base):
     comments = Column(String, nullable=True)
     code = Column(String, nullable=True)
     has_started = Column(Boolean, default=False)
+    test_date = Column(Date, default=date.today)
 
 class StartingTestingResults(Base):
     __tablename__ = "starting_testing_results"

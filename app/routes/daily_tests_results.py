@@ -382,7 +382,8 @@ def get_daily_test_private(
         rufie_test_result_indicator_average = db.query(func.avg(models.RufieTestResult.rufie_index)).filter_by(
             user_id=user_id).scalar()
 
-        test_date = shtange_results[0].test_date
+        testing = db.query(models.TraineeTestings).filter_by(user_id=user_id, id=test_id).first()
+        test_date = testing.test_date
 
         # Собираем результаты в одном объекте
         result = DailyTestResult(
