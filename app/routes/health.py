@@ -164,3 +164,110 @@ def get_available_tests(db: Session = Depends(get_db), user: models.User = Depen
         test_id=current_test_id,
     )
 
+@router.get("/available-tests-code", response_model=schemas.AvailableTestsResponse)
+def get_available_tests_by_code(
+    code: str,
+    db: Session = Depends(get_db),
+    user: models.User = Depends(auth.get_current_user)
+):
+
+    # Все возможные типы тестов
+    test_types = ["escal_daily", "shtange", "gench", "reactions", "rufie"]
+    available_tests = []
+    completed_tests = []
+
+    # Флаг для проверки, был ли пройден тест "escal"
+    #escal_test_completed = False
+
+    # Проверяем, был ли пройден тест "escal"
+    #escal_test = db.query(models.EscalResults).filter_by(user_id=user.id).first()
+    #if escal_test:
+    #     escal_test_completed = True
+
+    # Если "escal" не пройден — возвращаем только "escal" в доступных тестах
+    # if not escal_test_completed:
+    #   available_tests.append(schemas.AvailableTest(type="escal"))
+    #  return schemas.AvailableTestsResponse(
+    #      available_tests=available_tests,
+    #      completed_tests=[]
+    #   )
+
+    # Если "escal" пройден, всегда добавляем "escal_daily" в доступные тесты
+    #available_tests.append(schemas.AvailableTest(type="escal_daily"))
+
+    current_testing = db.query(models.TraineeTestings).filter_by(code=code).order_by(models.TraineeTestings.created_at.desc()).first()
+    if current_testing is None or not current_testing.has_started:
+        return schemas.AvailableTestsResponse(
+            available_tests=[],
+            completed_tests=[]
+        )
+    current_test_id = current_testing.id
+
+
+    for test_type in test_types:
+
+        if test_type == "escal":
+            continue
+
+        exists = False  # Флаг для проверки, был ли тест пройден сегодня
+        last_test_date = None  # Дата последнего прохождения
+
+        if test_type == "shtange":
+            test = db.query(models.ShtangeTestResult).filter_by(user_id=user.id).order_by(models.ShtangeTestResult.created_at.desc()).first()
+
+            if test and test.testing_id == current_test_id:
+                exists = True
+                last_test_date = test.test_date
+        elif test_type == "escal":
+            continue
+        elif test_type == "escal_daily":
+            test = db.query(models.EscalDailyResults).filter_by(user_id=user.id).order_by(models.EscalDailyResults.created_at.desc()).first()
+            if test and test.testing_id == current_test_id:
+                exists = True
+                last_test_date = test.test_date
+        elif test_type == "gench":
+            test = db.query(models.GenchTestResult).filter_by(user_id=user.id).order_by(models.GenchTestResult.created_at.desc()).first()
+            if test and test.testing_id == current_test_id:
+                exists = True
+                last_test_date = test.test_date
+        elif test_type == "reactions":
+            test = db.query(models.ReactionsTestResult).filter_by(user_id=user.id).order_by(models.ReactionsTestResult.created_at.desc()).first()
+            if test and test.testing_id == current_test_id:
+                exists = True
+                last_test_date = test.test_date
+        elif test_type == "rufie":
+            test = db.query(models.RufieTestResult).filter_by(user_id=user.id).order_by(models.RufieTestResult.created_at.desc()).first()
+            if test and test.testing_id == current_test_id:
+                exists = True
+                last_test_date = test.test_date
+        elif test_type == "strup":
+            test = db.query(models.StrupTestResult).filter_by(user_id=user.id).order_by(models.StrupTestResult.test_date.desc()).first()
+            if test and test.testing_id == current_test_id:
+                exists = True
+                last_test_date = test.test_date
+        elif test_type == "text_audition":
+            test = db.query(models.TextAuditionResults).filter_by(user_id=user.id).order_by(
+                models.TextAuditionResults.test_date.desc()).first()
+            if test and test.testing_id == current_test_id:
+                exists = True
+                last_test_date = test.test_date
+        elif test_type == "personal_report":
+            test = db.query(models.PersonalReportTestResult).filter_by(user_id=user.id).order_by(
+                models.PersonalReportTestResult.test_date.desc()).first()
+            if test and test.testing_id == current_test_id:
+                exists = True
+                last_test_date = test.test_date
+
+        # Добавляем тест в нужный список
+        test_data = schemas.AvailableTest(type=test_type, last_test_date=str(last_test_date))
+
+        if exists:
+            completed_tests.append(test_data)
+        else:
+            available_tests.append(test_data)
+
+    return schemas.AvailableTestsResponse(
+        available_tests=available_tests,
+        completed_tests=completed_tests,
+        test_id=current_test_id,
+    )

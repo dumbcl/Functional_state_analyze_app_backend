@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app import models, schemas, database, auth
 from app.database import SessionLocal, get_db
 from sqlalchemy import func
+import random
 
 router = APIRouter()
 
@@ -64,6 +65,15 @@ def login(user: schemas.UserCreate, db: Session = Depends(get_db)):
     access_token = auth.create_access_token(data={"sub": db_user.username})
     return {"access_token": access_token, "token_type": "bearer", "nickname": db_user.nickname}
 
+@router.post("/login-code", response_model=schemas.Token)
+def login(code: schemas.CodeCreate, db: Session = Depends(get_db)):
+    db_testing = db.query(models.TraineeTestings).filter(models.TraineeTestings.code == code.code).first()
+    if not db_testing:
+        return {"error_msg": "CODE_INCORRECT"}
+    db_user = db.query(models.User).filter(models.User.id ==db_testing.user_id).first()
+    access_token = auth.create_access_token(data={"sub": db_testing.code})
+    return {"access_token": access_token, "token_type": "bearer", "nickname": db_user.nickname}
+
 @router.post("/start-test")
 def start_test(
     db: Session = Depends(get_db),
@@ -77,3 +87,37 @@ def start_test(
     db.commit()
     db.refresh(test)
     return {"new_test_id": test.id}
+
+@router.post("/create-testing")
+def create_testing(
+    testing: schemas.TraineeTestings,
+    db: Session = Depends(get_db),
+    response_model=schemas.CreateTestingResponse,
+):
+    max_id = db.query(func.max(models.TraineeTestings.id)).scalar() or 0
+    test = models.TraineeTestings(
+        user_id=testing.user_id,
+        mode_index=testing.mode_index,
+        pressure1=testing.pressure1,
+        pressure2=testing.pressure2,
+        pulse=testing.pulse,
+        height=testing.height,
+        weight=testing.weight,
+        comments=testing.comments,
+        code=str(max_id) + str(random.randint(10, 99))
+    )
+    db.add(test)
+    db.commit()
+    db.refresh(test)
+    return schemas.CreateTestingResponse(code = test.code)
+
+@router.post("/start-test-find")
+def start_test_find(
+    code: str,
+    db: Session = Depends(get_db),
+):
+
+    testing = db.query(models.TraineeTestings).filter(models.TraineeTestings.code == code).first()
+    testing.has_started = True
+    db.commit()
+    return {"new_test_id": testing.id}

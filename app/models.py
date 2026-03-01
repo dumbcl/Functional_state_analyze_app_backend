@@ -294,6 +294,15 @@ class TraineeTestings(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
+    mode_index = Column(Integer, nullable=True)
+    pressure1 = Column(Integer, nullable=True)
+    pressure2 = Column(Integer, nullable=True)
+    pulse = Column(Integer, nullable=True)
+    height = Column(Integer, nullable=True)
+    weight = Column(Integer, nullable=True)
+    comments = Column(String, nullable=True)
+    code = Column(String, nullable=False)
+    has_started = Column(Boolean, default=False)
 
 class StartingTestingResults(Base):
     __tablename__ = "starting_testing_results"

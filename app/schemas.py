@@ -14,6 +14,9 @@ class UserCreate(BaseModel):
     type: Optional[str] = None
     silent_creation: Optional[bool] = False
 
+class CodeCreate(BaseModel):
+    code: str
+
 class Token(BaseModel):
     access_token: Optional[str] = None
     token_type: Optional[str] = None
@@ -442,6 +445,33 @@ class Trainee(BaseModel):
     nickname: str
     name: Optional[str] = None
     surname: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class TraineeTestings(BaseModel):
+    user_id: Optional[int] = None
+    mode_index: Optional[int] = None
+    pressure1: Optional[int] = None
+    pressure2: Optional[int] = None
+    pulse: Optional[int] = None
+    height: Optional[int] = None
+    weight: Optional[int] = None
+    comments: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+
+class CreateTestingResponse(BaseModel):
+    error_msg: Optional[str] = None
+    code: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class FindTestingRequest(BaseModel):
+    code: str
 
     class Config:
         orm_mode = True
