@@ -71,7 +71,7 @@ def login(code: schemas.CodeCreate, db: Session = Depends(get_db)):
     if not db_testing:
         return {"error_msg": "CODE_INCORRECT"}
     db_user = db.query(models.User).filter(models.User.id ==db_testing.user_id).first()
-    access_token = auth.create_access_token(data={"sub": db_testing.code})
+    access_token = auth.create_access_token(data={"sub": db_user.username})
     return {"access_token": access_token, "token_type": "bearer", "nickname": db_user.nickname}
 
 @router.post("/start-test")
