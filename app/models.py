@@ -301,7 +301,7 @@ class TraineeTestings(Base):
     height = Column(Integer, nullable=True)
     weight = Column(Integer, nullable=True)
     comments = Column(String, nullable=True)
-    code = Column(String, nullable=False)
+    code = Column(String, nullable=True)
     has_started = Column(Boolean, default=False)
 
 class StartingTestingResults(Base):
