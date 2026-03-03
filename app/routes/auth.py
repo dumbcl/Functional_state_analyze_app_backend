@@ -9,7 +9,35 @@ router = APIRouter()
 
 
 @router.post("/register", response_model=schemas.Token)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db), author: models.User = Depends(auth.get_current_user)):
+def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    if not user.username or user.username.strip() == "":
+        max_id = db.query(func.max(models.User.id)).scalar() or 0
+        user.username = str(max_id + 1)
+    else:
+        db_user = db.query(models.User).filter(models.User.username == user.username).first()
+        if db_user:
+            return {"error_msg": "USERNAME_ALREADY_REGISTERED"}
+
+    hashed_password = auth.get_password_hash(user.password)
+    new_user = models.User(
+        username=user.username,
+        hashed_password=hashed_password,
+        nickname=user.nickname,
+        name=user.name,
+        surname=user.surname,
+        weight=user.weight,
+        height=user.height,
+        gender=user.gender,
+        type=user.type,
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    access_token = auth.create_access_token(data={"sub": new_user.username})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/register-silent", response_model=schemas.Token)
+def register_silent(user: schemas.UserCreate, db: Session = Depends(get_db), author: models.User = Depends(auth.get_current_user)):
     if not user.username or user.username.strip() == "":
         max_id = db.query(func.max(models.User.id)).scalar() or 0
         user.username = str(max_id + 1)
@@ -129,7 +157,7 @@ def start_test_find(
     response_model=schemas.ProfileInfo
 ):
 
-    user = db.query(models.TraineeTestings).filter(models.User.id == user_id).first()
+    user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         return schemas.ProfileInfo()
 
