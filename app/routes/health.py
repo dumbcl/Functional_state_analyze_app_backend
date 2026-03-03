@@ -172,7 +172,7 @@ def get_available_tests_by_code(
 ):
 
     # Все возможные типы тестов
-    test_types = ["escal_daily", "shtange", "gench", "reactions", "rufie"]
+    test_types = ["shtange", "gench", "reactions"]
     available_tests = []
     completed_tests = []
 
