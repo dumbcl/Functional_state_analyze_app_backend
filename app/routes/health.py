@@ -271,3 +271,7 @@ def get_available_tests_by_code(
         completed_tests=completed_tests,
         test_id=current_test_id,
     )
+
+@router.get("/check-health-alert", response_model=schemas.CheckHealth)
+def get_available_tests():
+    return schemas.CheckHealth(check_health=False)

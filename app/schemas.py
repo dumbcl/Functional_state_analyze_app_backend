@@ -483,3 +483,6 @@ class ProfileInfo(BaseModel):
 
     class Config:
         orm_mode = True
+
+class CheckHealth(BaseModel):
+    check_health: bool
