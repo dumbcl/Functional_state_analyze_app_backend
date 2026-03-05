@@ -172,7 +172,7 @@ def get_available_tests_by_code(
 ):
 
     # Все возможные типы тестов
-    test_types = ["shtange", "gench", "reactions"]
+    test_types = ["escal_daily", "shtange", "gench", "reactions"]
     available_tests = []
     completed_tests = []
 
@@ -274,4 +274,4 @@ def get_available_tests_by_code(
 
 @router.get("/check-health-alert", response_model=schemas.CheckHealth)
 def get_available_tests():
-    return schemas.CheckHealth(check_health=False)
+    return schemas.CheckHealth(check_health=True)
